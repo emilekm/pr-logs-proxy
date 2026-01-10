@@ -13,7 +13,7 @@ const (
 type AdminEntry struct {
 	Timestamp time.Time
 	Action    string
-	Admin     string
+	Issuer    string
 	Target    string
 	Details   string
 }
@@ -74,7 +74,7 @@ func ParseAdminEntry(line string, dateFormat string) (*AdminEntry, error) {
 	return &AdminEntry{
 		Timestamp: timestamp,
 		Action:    action,
-		Admin:     admin,
+		Issuer:    admin,
 		Target:    target,
 		Details:   details,
 	}, nil

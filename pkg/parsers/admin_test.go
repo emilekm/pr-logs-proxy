@@ -17,7 +17,7 @@ func TestParseAdminEntry(t *testing.T) {
 			output: &AdminEntry{
 				Timestamp: time.Date(2026, 1, 9, 23, 25, 47, 0, time.UTC),
 				Action:    "MAPVOTERESULT",
-				Admin:     "TAG user",
+				Issuer:    "TAG user",
 				Target:    "",
 				Details:   "Vote finished: Ramiel: 14 | Dragon Fly: 3 | Sbeneh Outskirts: 15",
 			},
@@ -27,7 +27,7 @@ func TestParseAdminEntry(t *testing.T) {
 			output: &AdminEntry{
 				Timestamp: time.Date(2026, 1, 9, 23, 25, 56, 0, time.UTC),
 				Action:    "!SETNEXT",
-				Admin:     " user",
+				Issuer:    " user",
 				Target:    "",
 				Details:   "Sbeneh Outskirts (Insurgency, Std)",
 			},
@@ -37,7 +37,7 @@ func TestParseAdminEntry(t *testing.T) {
 			output: &AdminEntry{
 				Timestamp: time.Date(2026, 1, 9, 23, 26, 40, 0, time.UTC),
 				Action:    "!REPORTP",
-				Admin:     "TAG user1",
+				Issuer:    "TAG user1",
 				Target:    " user2",
 				Details:   "afk",
 			},
