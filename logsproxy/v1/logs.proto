@@ -1,0 +1,58 @@
+syntax = "proto3";
+
+package logsproxy.v1;
+
+option go_package = "github.com/alliance-community/pr-logs-proxy/logsproxy/v1";
+
+message AdminLogEntry {
+  int64 timestamp = 1;
+  string action = 2;
+  string issuer = 3;
+  string target = 4;
+  string details = 5;
+}
+message AdminLogUpdatesRequest {}
+message AdminLogUpdatesResponse { AdminLogEntry entry = 1; }
+
+service AdminLogService {
+  rpc AdminLogUpdates(AdminLogUpdatesRequest)
+      returns (stream AdminLogUpdatesResponse);
+}
+
+enum AccountStatus {
+  ACCOUNT_STATUS_UNSPECIFIED = 0;
+  ACCOUNT_STATUS_LEGACY = 1;
+  ACCOUNT_STATUS_WHITELISTED = 2;
+  ACCOUNT_STATUS_VAC_BANNED = 3;
+}
+
+message JoinLogEntry {
+  int64 timestamp = 1;
+  string key_hash = 2;
+  uint32 trust_level = 3;
+  string name = 4;
+  int64 created_at = 5;
+  fixed32 ipv4 = 6;
+  AccountStatus status = 7;
+}
+message JoinLogUpdatesRequest {}
+message JoinLogUpdatesResponse { JoinLogEntry entry = 1; }
+
+service JoinLogService {
+  rpc JoinLogUpdates(JoinLogUpdatesRequest)
+      returns (stream JoinLogUpdatesResponse);
+}
+
+message PlayerProfileEntry {
+  int64 timestamp = 1;
+  string key_hash = 2;
+  uint32 trust_level = 3;
+  string username = 4;
+}
+message PlayerProfileUpdatesRequest {}
+message PlayerProfileUpdatesResponse { PlayerProfileEntry entry = 1; }
+
+service PlayerProfileService {
+  rpc PlayerProfileUpdates(PlayerProfileUpdatesRequest)
+      returns (stream PlayerProfileUpdatesResponse);
+}
