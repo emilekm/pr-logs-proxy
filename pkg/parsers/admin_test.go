@@ -46,7 +46,7 @@ func TestParseAdminEntry(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.input, func(t *testing.T) {
-			entry, err := ParseAdminEntry(test.input, AdminLogDateFormat)
+			entry, err := ParseAdminEntry(test.input, DefaultDateFormat)
 			require.NoError(t, err)
 			require.Equal(t, test.output, entry)
 		})

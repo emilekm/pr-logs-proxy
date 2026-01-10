@@ -7,7 +7,7 @@ import (
 )
 
 const (
-	AdminLogDateFormat = "2006_01_02_15_04_05"
+	DefaultDateFormat = "2006_01_02_15_04_05"
 )
 
 type AdminEntry struct {
