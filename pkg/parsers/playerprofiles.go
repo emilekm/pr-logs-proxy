@@ -8,10 +8,10 @@ import (
 )
 
 type PlayerProfileEntry struct {
-	Timestamp time.Time
-	KeyHash   string
-	Level     int
-	Username  string
+	Timestamp  time.Time
+	KeyHash    string
+	TrustLevel int
+	Username   string
 }
 
 func ParsePlayerProfileEntry(line string) (*PlayerProfileEntry, error) {
@@ -31,9 +31,9 @@ func ParsePlayerProfileEntry(line string) (*PlayerProfileEntry, error) {
 	}
 
 	return &PlayerProfileEntry{
-		Timestamp: timestamp,
-		KeyHash:   parts[1],
-		Level:     level,
-		Username:  parts[3],
+		Timestamp:  timestamp,
+		KeyHash:    parts[1],
+		TrustLevel: level,
+		Username:   parts[3],
 	}, nil
 }
