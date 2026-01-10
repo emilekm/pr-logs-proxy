@@ -1,4 +1,4 @@
-module github.com/emilekm/pr-logs-proxy
+module github.com/Alliance-Community/pr-logs-proxy
 
 go 1.25.5
 
