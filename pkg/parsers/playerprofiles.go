@@ -1,4 +1,4 @@
-package playerprofiles
+package parsers
 
 import (
 	"errors"

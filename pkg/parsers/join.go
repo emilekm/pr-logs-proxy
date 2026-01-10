@@ -1,4 +1,4 @@
-package join
+package parsers
 
 import (
 	"errors"
