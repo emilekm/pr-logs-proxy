@@ -5,7 +5,7 @@ import (
 	"sync"
 
 	v1 "github.com/Alliance-Community/pr-logs-proxy/logsproxy/v1"
-	"github.com/Alliance-Community/pr-logs-proxy/pkg/parsers"
+	"github.com/emilekm/go-prbf2/logs"
 	"github.com/nxadm/tail"
 	"google.golang.org/grpc"
 )
@@ -16,7 +16,7 @@ type UpdateService_UpdateLogsServer[T v1.AdminLogUpdatesResponse | v1.JoinLogUpd
 }
 
 type updateService[
-	T parsers.AdminEntry | parsers.JoinEntry | parsers.PlayerProfileEntry,
+	T logs.AdminEntry | logs.JoinEntry | logs.PlayerProfileEntry,
 	V v1.AdminLogUpdatesResponse | v1.JoinLogUpdatesResponse | v1.PlayerProfilesUpdatesResponse,
 ] struct {
 	logParser     func(string) (*T, error)
@@ -28,7 +28,7 @@ type updateService[
 }
 
 func newUpdateService[
-	T parsers.AdminEntry | parsers.JoinEntry | parsers.PlayerProfileEntry,
+	T logs.AdminEntry | logs.JoinEntry | logs.PlayerProfileEntry,
 	V v1.AdminLogUpdatesResponse | v1.JoinLogUpdatesResponse | v1.PlayerProfilesUpdatesResponse,
 ](logPath string, parser func(string) (*T, error), entryToProto func(*T) *V) *updateService[T, V] {
 	return &updateService[T, V]{

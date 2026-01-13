@@ -6,22 +6,22 @@ import (
 	"os"
 
 	v1 "github.com/Alliance-Community/pr-logs-proxy/logsproxy/v1"
-	"github.com/Alliance-Community/pr-logs-proxy/pkg/parsers"
+	"github.com/emilekm/go-prbf2/logs"
 )
 
 var _ v1.PlayerProfilesServiceServer = (*PlayerProfilesService)(nil)
 
 type PlayerProfilesService struct {
 	v1.UnimplementedPlayerProfilesServiceServer
-	*updateService[parsers.PlayerProfileEntry, v1.PlayerProfilesUpdatesResponse]
+	*updateService[logs.PlayerProfileEntry, v1.PlayerProfilesUpdatesResponse]
 	logPath string
 }
 
 func NewPlayerProfilesService(logPath string) *PlayerProfilesService {
 	return &PlayerProfilesService{
 		updateService: newUpdateService(
-			logPath, parsers.ParsePlayerProfileEntry,
-			func(entry *parsers.PlayerProfileEntry) *v1.PlayerProfilesUpdatesResponse {
+			logPath, logs.ParsePlayerProfileEntry,
+			func(entry *logs.PlayerProfileEntry) *v1.PlayerProfilesUpdatesResponse {
 				return &v1.PlayerProfilesUpdatesResponse{
 					Entry: playerProfileEntryToProto(entry),
 				}
@@ -50,7 +50,7 @@ func (s *PlayerProfilesService) PlayerProfiles(ctx context.Context, req *v1.Play
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
 		line := scanner.Text()
-		entry, err := parsers.ParsePlayerProfileEntry(line)
+		entry, err := logs.ParsePlayerProfileEntry(line)
 		if err != nil {
 			continue
 		}
@@ -63,7 +63,7 @@ func (s *PlayerProfilesService) PlayerProfiles(ctx context.Context, req *v1.Play
 	}, nil
 }
 
-func playerProfileEntryToProto(entry *parsers.PlayerProfileEntry) *v1.PlayerProfileEntry {
+func playerProfileEntryToProto(entry *logs.PlayerProfileEntry) *v1.PlayerProfileEntry {
 	return &v1.PlayerProfileEntry{
 		Timestamp:  entry.Timestamp.Unix(),
 		KeyHash:    entry.KeyHash,

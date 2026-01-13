@@ -7,22 +7,22 @@ import (
 	"os"
 
 	v1 "github.com/Alliance-Community/pr-logs-proxy/logsproxy/v1"
-	"github.com/Alliance-Community/pr-logs-proxy/pkg/parsers"
+	"github.com/emilekm/go-prbf2/logs"
 )
 
 var _ v1.JoinLogServiceServer = (*JoinLogService)(nil)
 
 type JoinLogService struct {
 	v1.UnimplementedJoinLogServiceServer
-	*updateService[parsers.JoinEntry, v1.JoinLogUpdatesResponse]
+	*updateService[logs.JoinEntry, v1.JoinLogUpdatesResponse]
 	logPath string
 }
 
 func NewJoinLogService(logPath string) *JoinLogService {
 	return &JoinLogService{
 		updateService: newUpdateService(
-			logPath, parsers.ParseJoinEntry,
-			func(entry *parsers.JoinEntry) *v1.JoinLogUpdatesResponse {
+			logPath, logs.ParseJoinEntry,
+			func(entry *logs.JoinEntry) *v1.JoinLogUpdatesResponse {
 				return &v1.JoinLogUpdatesResponse{
 					Entry: joinEntryToProto(entry),
 				}
@@ -51,7 +51,7 @@ func (s *JoinLogService) JoinLogs(ctx context.Context, req *v1.JoinLogsRequest) 
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
 		line := scanner.Text()
-		entry, err := parsers.ParseJoinEntry(line)
+		entry, err := logs.ParseJoinEntry(line)
 		if err != nil {
 			continue
 		}
@@ -64,7 +64,7 @@ func (s *JoinLogService) JoinLogs(ctx context.Context, req *v1.JoinLogsRequest) 
 	}, nil
 }
 
-func joinEntryToProto(entry *parsers.JoinEntry) *v1.JoinLogEntry {
+func joinEntryToProto(entry *logs.JoinEntry) *v1.JoinLogEntry {
 	ipv4 := uint32(0)
 	if ip := entry.IP.To4(); ip != nil {
 		ipv4 = binary.BigEndian.Uint32(ip)
@@ -72,11 +72,11 @@ func joinEntryToProto(entry *parsers.JoinEntry) *v1.JoinLogEntry {
 
 	status := v1.AccountStatus_ACCOUNT_STATUS_UNSPECIFIED
 	switch entry.Status {
-	case parsers.StatusLegacy:
+	case logs.StatusLegacy:
 		status = v1.AccountStatus_ACCOUNT_STATUS_LEGACY
-	case parsers.StatusWhitelisted:
+	case logs.StatusWhitelisted:
 		status = v1.AccountStatus_ACCOUNT_STATUS_WHITELISTED
-	case parsers.StatusVacBanned:
+	case logs.StatusVacBanned:
 		status = v1.AccountStatus_ACCOUNT_STATUS_VAC_BANNED
 	}
 

@@ -7,14 +7,14 @@ import (
 	"os"
 
 	v1 "github.com/Alliance-Community/pr-logs-proxy/logsproxy/v1"
-	"github.com/Alliance-Community/pr-logs-proxy/pkg/parsers"
+	"github.com/emilekm/go-prbf2/logs"
 )
 
 var _ v1.AdminLogServiceServer = (*AdminLogService)(nil)
 
 type AdminLogService struct {
 	v1.UnimplementedAdminLogServiceServer
-	*updateService[parsers.AdminEntry, v1.AdminLogUpdatesResponse]
+	*updateService[logs.AdminEntry, v1.AdminLogUpdatesResponse]
 	logPath string
 }
 
@@ -22,10 +22,10 @@ func NewAdminLogService(logPath string) *AdminLogService {
 	return &AdminLogService{
 		updateService: newUpdateService(
 			logPath,
-			func(line string) (*parsers.AdminEntry, error) {
-				return parsers.ParseAdminEntry(line, parsers.DefaultDateFormat)
+			func(line string) (*logs.AdminEntry, error) {
+				return logs.ParseAdminEntry(line, logs.DefaultAdminEntryDateFormat)
 			},
-			func(entry *parsers.AdminEntry) *v1.AdminLogUpdatesResponse {
+			func(entry *logs.AdminEntry) *v1.AdminLogUpdatesResponse {
 				return &v1.AdminLogUpdatesResponse{
 					Entry: adminEntryToProto(entry),
 				}
@@ -54,7 +54,7 @@ func (s *AdminLogService) AdminsLogs(ctx context.Context, req *v1.AdminsLogsRequ
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
 		line := scanner.Text()
-		entry, err := parsers.ParseAdminEntry(line, parsers.DefaultDateFormat)
+		entry, err := logs.ParseAdminEntry(line, logs.DefaultAdminEntryDateFormat)
 		if err != nil {
 			return nil, fmt.Errorf("failed to parse admin log entry %q: %w", line, err)
 		}
@@ -67,7 +67,7 @@ func (s *AdminLogService) AdminsLogs(ctx context.Context, req *v1.AdminsLogsRequ
 	}, nil
 }
 
-func adminEntryToProto(entry *parsers.AdminEntry) *v1.AdminLogEntry {
+func adminEntryToProto(entry *logs.AdminEntry) *v1.AdminLogEntry {
 	return &v1.AdminLogEntry{
 		Timestamp: entry.Timestamp.Unix(),
 		Issuer:    entry.Issuer,
