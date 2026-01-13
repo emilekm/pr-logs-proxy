@@ -3,6 +3,7 @@ package services
 import (
 	"bufio"
 	"context"
+	"fmt"
 	"os"
 
 	v1 "github.com/Alliance-Community/pr-logs-proxy/logsproxy/v1"
@@ -55,7 +56,7 @@ func (s *AdminLogService) AdminsLogs(ctx context.Context, req *v1.AdminsLogsRequ
 		line := scanner.Text()
 		entry, err := parsers.ParseAdminEntry(line, parsers.DefaultDateFormat)
 		if err != nil {
-			continue
+			return nil, fmt.Errorf("failed to parse admin log entry %q: %w", line, err)
 		}
 
 		entries = append(entries, adminEntryToProto(entry))
