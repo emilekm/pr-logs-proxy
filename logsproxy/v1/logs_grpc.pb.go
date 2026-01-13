@@ -20,6 +20,7 @@ const _ = grpc.SupportPackageIsVersion7
 
 const (
 	AdminLogService_AdminLogUpdates_FullMethodName = "/logsproxy.v1.AdminLogService/AdminLogUpdates"
+	AdminLogService_AdminsLogs_FullMethodName      = "/logsproxy.v1.AdminLogService/AdminsLogs"
 )
 
 // AdminLogServiceClient is the client API for AdminLogService service.
@@ -27,6 +28,7 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type AdminLogServiceClient interface {
 	AdminLogUpdates(ctx context.Context, in *AdminLogUpdatesRequest, opts ...grpc.CallOption) (AdminLogService_AdminLogUpdatesClient, error)
+	AdminsLogs(ctx context.Context, in *AdminsLogsRequest, opts ...grpc.CallOption) (*AdminsLogsResponse, error)
 }
 
 type adminLogServiceClient struct {
@@ -69,11 +71,21 @@ func (x *adminLogServiceAdminLogUpdatesClient) Recv() (*AdminLogUpdatesResponse,
 	return m, nil
 }
 
+func (c *adminLogServiceClient) AdminsLogs(ctx context.Context, in *AdminsLogsRequest, opts ...grpc.CallOption) (*AdminsLogsResponse, error) {
+	out := new(AdminsLogsResponse)
+	err := c.cc.Invoke(ctx, AdminLogService_AdminsLogs_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // AdminLogServiceServer is the server API for AdminLogService service.
 // All implementations must embed UnimplementedAdminLogServiceServer
 // for forward compatibility
 type AdminLogServiceServer interface {
 	AdminLogUpdates(*AdminLogUpdatesRequest, AdminLogService_AdminLogUpdatesServer) error
+	AdminsLogs(context.Context, *AdminsLogsRequest) (*AdminsLogsResponse, error)
 	mustEmbedUnimplementedAdminLogServiceServer()
 }
 
@@ -83,6 +95,9 @@ type UnimplementedAdminLogServiceServer struct {
 
 func (UnimplementedAdminLogServiceServer) AdminLogUpdates(*AdminLogUpdatesRequest, AdminLogService_AdminLogUpdatesServer) error {
 	return status.Errorf(codes.Unimplemented, "method AdminLogUpdates not implemented")
+}
+func (UnimplementedAdminLogServiceServer) AdminsLogs(context.Context, *AdminsLogsRequest) (*AdminsLogsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AdminsLogs not implemented")
 }
 func (UnimplementedAdminLogServiceServer) mustEmbedUnimplementedAdminLogServiceServer() {}
 
@@ -118,13 +133,36 @@ func (x *adminLogServiceAdminLogUpdatesServer) Send(m *AdminLogUpdatesResponse) 
 	return x.ServerStream.SendMsg(m)
 }
 
+func _AdminLogService_AdminsLogs_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AdminsLogsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AdminLogServiceServer).AdminsLogs(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AdminLogService_AdminsLogs_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AdminLogServiceServer).AdminsLogs(ctx, req.(*AdminsLogsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // AdminLogService_ServiceDesc is the grpc.ServiceDesc for AdminLogService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var AdminLogService_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "logsproxy.v1.AdminLogService",
 	HandlerType: (*AdminLogServiceServer)(nil),
-	Methods:     []grpc.MethodDesc{},
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "AdminsLogs",
+			Handler:    _AdminLogService_AdminsLogs_Handler,
+		},
+	},
 	Streams: []grpc.StreamDesc{
 		{
 			StreamName:    "AdminLogUpdates",
@@ -137,6 +175,7 @@ var AdminLogService_ServiceDesc = grpc.ServiceDesc{
 
 const (
 	JoinLogService_JoinLogUpdates_FullMethodName = "/logsproxy.v1.JoinLogService/JoinLogUpdates"
+	JoinLogService_JoinLogs_FullMethodName       = "/logsproxy.v1.JoinLogService/JoinLogs"
 )
 
 // JoinLogServiceClient is the client API for JoinLogService service.
@@ -144,6 +183,7 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type JoinLogServiceClient interface {
 	JoinLogUpdates(ctx context.Context, in *JoinLogUpdatesRequest, opts ...grpc.CallOption) (JoinLogService_JoinLogUpdatesClient, error)
+	JoinLogs(ctx context.Context, in *JoinLogsRequest, opts ...grpc.CallOption) (*JoinLogsResponse, error)
 }
 
 type joinLogServiceClient struct {
@@ -186,11 +226,21 @@ func (x *joinLogServiceJoinLogUpdatesClient) Recv() (*JoinLogUpdatesResponse, er
 	return m, nil
 }
 
+func (c *joinLogServiceClient) JoinLogs(ctx context.Context, in *JoinLogsRequest, opts ...grpc.CallOption) (*JoinLogsResponse, error) {
+	out := new(JoinLogsResponse)
+	err := c.cc.Invoke(ctx, JoinLogService_JoinLogs_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // JoinLogServiceServer is the server API for JoinLogService service.
 // All implementations must embed UnimplementedJoinLogServiceServer
 // for forward compatibility
 type JoinLogServiceServer interface {
 	JoinLogUpdates(*JoinLogUpdatesRequest, JoinLogService_JoinLogUpdatesServer) error
+	JoinLogs(context.Context, *JoinLogsRequest) (*JoinLogsResponse, error)
 	mustEmbedUnimplementedJoinLogServiceServer()
 }
 
@@ -200,6 +250,9 @@ type UnimplementedJoinLogServiceServer struct {
 
 func (UnimplementedJoinLogServiceServer) JoinLogUpdates(*JoinLogUpdatesRequest, JoinLogService_JoinLogUpdatesServer) error {
 	return status.Errorf(codes.Unimplemented, "method JoinLogUpdates not implemented")
+}
+func (UnimplementedJoinLogServiceServer) JoinLogs(context.Context, *JoinLogsRequest) (*JoinLogsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method JoinLogs not implemented")
 }
 func (UnimplementedJoinLogServiceServer) mustEmbedUnimplementedJoinLogServiceServer() {}
 
@@ -235,13 +288,36 @@ func (x *joinLogServiceJoinLogUpdatesServer) Send(m *JoinLogUpdatesResponse) err
 	return x.ServerStream.SendMsg(m)
 }
 
+func _JoinLogService_JoinLogs_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(JoinLogsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(JoinLogServiceServer).JoinLogs(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: JoinLogService_JoinLogs_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(JoinLogServiceServer).JoinLogs(ctx, req.(*JoinLogsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // JoinLogService_ServiceDesc is the grpc.ServiceDesc for JoinLogService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var JoinLogService_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "logsproxy.v1.JoinLogService",
 	HandlerType: (*JoinLogServiceServer)(nil),
-	Methods:     []grpc.MethodDesc{},
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "JoinLogs",
+			Handler:    _JoinLogService_JoinLogs_Handler,
+		},
+	},
 	Streams: []grpc.StreamDesc{
 		{
 			StreamName:    "JoinLogUpdates",
@@ -253,30 +329,32 @@ var JoinLogService_ServiceDesc = grpc.ServiceDesc{
 }
 
 const (
-	PlayerProfileService_PlayerProfileUpdates_FullMethodName = "/logsproxy.v1.PlayerProfileService/PlayerProfileUpdates"
+	PlayerProfilesService_PlayerProfilesUpdates_FullMethodName = "/logsproxy.v1.PlayerProfilesService/PlayerProfilesUpdates"
+	PlayerProfilesService_PlayerProfilesLogs_FullMethodName    = "/logsproxy.v1.PlayerProfilesService/PlayerProfilesLogs"
 )
 
-// PlayerProfileServiceClient is the client API for PlayerProfileService service.
+// PlayerProfilesServiceClient is the client API for PlayerProfilesService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-type PlayerProfileServiceClient interface {
-	PlayerProfileUpdates(ctx context.Context, in *PlayerProfileUpdatesRequest, opts ...grpc.CallOption) (PlayerProfileService_PlayerProfileUpdatesClient, error)
+type PlayerProfilesServiceClient interface {
+	PlayerProfilesUpdates(ctx context.Context, in *PlayerProfilesUpdatesRequest, opts ...grpc.CallOption) (PlayerProfilesService_PlayerProfilesUpdatesClient, error)
+	PlayerProfilesLogs(ctx context.Context, in *PlayerProfilesLogsRequest, opts ...grpc.CallOption) (*PlayerProfilesLogsResponse, error)
 }
 
-type playerProfileServiceClient struct {
+type playerProfilesServiceClient struct {
 	cc grpc.ClientConnInterface
 }
 
-func NewPlayerProfileServiceClient(cc grpc.ClientConnInterface) PlayerProfileServiceClient {
-	return &playerProfileServiceClient{cc}
+func NewPlayerProfilesServiceClient(cc grpc.ClientConnInterface) PlayerProfilesServiceClient {
+	return &playerProfilesServiceClient{cc}
 }
 
-func (c *playerProfileServiceClient) PlayerProfileUpdates(ctx context.Context, in *PlayerProfileUpdatesRequest, opts ...grpc.CallOption) (PlayerProfileService_PlayerProfileUpdatesClient, error) {
-	stream, err := c.cc.NewStream(ctx, &PlayerProfileService_ServiceDesc.Streams[0], PlayerProfileService_PlayerProfileUpdates_FullMethodName, opts...)
+func (c *playerProfilesServiceClient) PlayerProfilesUpdates(ctx context.Context, in *PlayerProfilesUpdatesRequest, opts ...grpc.CallOption) (PlayerProfilesService_PlayerProfilesUpdatesClient, error) {
+	stream, err := c.cc.NewStream(ctx, &PlayerProfilesService_ServiceDesc.Streams[0], PlayerProfilesService_PlayerProfilesUpdates_FullMethodName, opts...)
 	if err != nil {
 		return nil, err
 	}
-	x := &playerProfileServicePlayerProfileUpdatesClient{stream}
+	x := &playerProfilesServicePlayerProfilesUpdatesClient{stream}
 	if err := x.ClientStream.SendMsg(in); err != nil {
 		return nil, err
 	}
@@ -286,83 +364,119 @@ func (c *playerProfileServiceClient) PlayerProfileUpdates(ctx context.Context, i
 	return x, nil
 }
 
-type PlayerProfileService_PlayerProfileUpdatesClient interface {
-	Recv() (*PlayerProfileUpdatesResponse, error)
+type PlayerProfilesService_PlayerProfilesUpdatesClient interface {
+	Recv() (*PlayerProfilesUpdatesResponse, error)
 	grpc.ClientStream
 }
 
-type playerProfileServicePlayerProfileUpdatesClient struct {
+type playerProfilesServicePlayerProfilesUpdatesClient struct {
 	grpc.ClientStream
 }
 
-func (x *playerProfileServicePlayerProfileUpdatesClient) Recv() (*PlayerProfileUpdatesResponse, error) {
-	m := new(PlayerProfileUpdatesResponse)
+func (x *playerProfilesServicePlayerProfilesUpdatesClient) Recv() (*PlayerProfilesUpdatesResponse, error) {
+	m := new(PlayerProfilesUpdatesResponse)
 	if err := x.ClientStream.RecvMsg(m); err != nil {
 		return nil, err
 	}
 	return m, nil
 }
 
-// PlayerProfileServiceServer is the server API for PlayerProfileService service.
-// All implementations must embed UnimplementedPlayerProfileServiceServer
+func (c *playerProfilesServiceClient) PlayerProfilesLogs(ctx context.Context, in *PlayerProfilesLogsRequest, opts ...grpc.CallOption) (*PlayerProfilesLogsResponse, error) {
+	out := new(PlayerProfilesLogsResponse)
+	err := c.cc.Invoke(ctx, PlayerProfilesService_PlayerProfilesLogs_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// PlayerProfilesServiceServer is the server API for PlayerProfilesService service.
+// All implementations must embed UnimplementedPlayerProfilesServiceServer
 // for forward compatibility
-type PlayerProfileServiceServer interface {
-	PlayerProfileUpdates(*PlayerProfileUpdatesRequest, PlayerProfileService_PlayerProfileUpdatesServer) error
-	mustEmbedUnimplementedPlayerProfileServiceServer()
+type PlayerProfilesServiceServer interface {
+	PlayerProfilesUpdates(*PlayerProfilesUpdatesRequest, PlayerProfilesService_PlayerProfilesUpdatesServer) error
+	PlayerProfilesLogs(context.Context, *PlayerProfilesLogsRequest) (*PlayerProfilesLogsResponse, error)
+	mustEmbedUnimplementedPlayerProfilesServiceServer()
 }
 
-// UnimplementedPlayerProfileServiceServer must be embedded to have forward compatible implementations.
-type UnimplementedPlayerProfileServiceServer struct {
+// UnimplementedPlayerProfilesServiceServer must be embedded to have forward compatible implementations.
+type UnimplementedPlayerProfilesServiceServer struct {
 }
 
-func (UnimplementedPlayerProfileServiceServer) PlayerProfileUpdates(*PlayerProfileUpdatesRequest, PlayerProfileService_PlayerProfileUpdatesServer) error {
-	return status.Errorf(codes.Unimplemented, "method PlayerProfileUpdates not implemented")
+func (UnimplementedPlayerProfilesServiceServer) PlayerProfilesUpdates(*PlayerProfilesUpdatesRequest, PlayerProfilesService_PlayerProfilesUpdatesServer) error {
+	return status.Errorf(codes.Unimplemented, "method PlayerProfilesUpdates not implemented")
 }
-func (UnimplementedPlayerProfileServiceServer) mustEmbedUnimplementedPlayerProfileServiceServer() {}
+func (UnimplementedPlayerProfilesServiceServer) PlayerProfilesLogs(context.Context, *PlayerProfilesLogsRequest) (*PlayerProfilesLogsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method PlayerProfilesLogs not implemented")
+}
+func (UnimplementedPlayerProfilesServiceServer) mustEmbedUnimplementedPlayerProfilesServiceServer() {}
 
-// UnsafePlayerProfileServiceServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to PlayerProfileServiceServer will
+// UnsafePlayerProfilesServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to PlayerProfilesServiceServer will
 // result in compilation errors.
-type UnsafePlayerProfileServiceServer interface {
-	mustEmbedUnimplementedPlayerProfileServiceServer()
+type UnsafePlayerProfilesServiceServer interface {
+	mustEmbedUnimplementedPlayerProfilesServiceServer()
 }
 
-func RegisterPlayerProfileServiceServer(s grpc.ServiceRegistrar, srv PlayerProfileServiceServer) {
-	s.RegisterService(&PlayerProfileService_ServiceDesc, srv)
+func RegisterPlayerProfilesServiceServer(s grpc.ServiceRegistrar, srv PlayerProfilesServiceServer) {
+	s.RegisterService(&PlayerProfilesService_ServiceDesc, srv)
 }
 
-func _PlayerProfileService_PlayerProfileUpdates_Handler(srv interface{}, stream grpc.ServerStream) error {
-	m := new(PlayerProfileUpdatesRequest)
+func _PlayerProfilesService_PlayerProfilesUpdates_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(PlayerProfilesUpdatesRequest)
 	if err := stream.RecvMsg(m); err != nil {
 		return err
 	}
-	return srv.(PlayerProfileServiceServer).PlayerProfileUpdates(m, &playerProfileServicePlayerProfileUpdatesServer{stream})
+	return srv.(PlayerProfilesServiceServer).PlayerProfilesUpdates(m, &playerProfilesServicePlayerProfilesUpdatesServer{stream})
 }
 
-type PlayerProfileService_PlayerProfileUpdatesServer interface {
-	Send(*PlayerProfileUpdatesResponse) error
+type PlayerProfilesService_PlayerProfilesUpdatesServer interface {
+	Send(*PlayerProfilesUpdatesResponse) error
 	grpc.ServerStream
 }
 
-type playerProfileServicePlayerProfileUpdatesServer struct {
+type playerProfilesServicePlayerProfilesUpdatesServer struct {
 	grpc.ServerStream
 }
 
-func (x *playerProfileServicePlayerProfileUpdatesServer) Send(m *PlayerProfileUpdatesResponse) error {
+func (x *playerProfilesServicePlayerProfilesUpdatesServer) Send(m *PlayerProfilesUpdatesResponse) error {
 	return x.ServerStream.SendMsg(m)
 }
 
-// PlayerProfileService_ServiceDesc is the grpc.ServiceDesc for PlayerProfileService service.
+func _PlayerProfilesService_PlayerProfilesLogs_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PlayerProfilesLogsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(PlayerProfilesServiceServer).PlayerProfilesLogs(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: PlayerProfilesService_PlayerProfilesLogs_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(PlayerProfilesServiceServer).PlayerProfilesLogs(ctx, req.(*PlayerProfilesLogsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+// PlayerProfilesService_ServiceDesc is the grpc.ServiceDesc for PlayerProfilesService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
-var PlayerProfileService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "logsproxy.v1.PlayerProfileService",
-	HandlerType: (*PlayerProfileServiceServer)(nil),
-	Methods:     []grpc.MethodDesc{},
+var PlayerProfilesService_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "logsproxy.v1.PlayerProfilesService",
+	HandlerType: (*PlayerProfilesServiceServer)(nil),
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "PlayerProfilesLogs",
+			Handler:    _PlayerProfilesService_PlayerProfilesLogs_Handler,
+		},
+	},
 	Streams: []grpc.StreamDesc{
 		{
-			StreamName:    "PlayerProfileUpdates",
-			Handler:       _PlayerProfileService_PlayerProfileUpdates_Handler,
+			StreamName:    "PlayerProfilesUpdates",
+			Handler:       _PlayerProfilesService_PlayerProfilesUpdates_Handler,
 			ServerStreams: true,
 		},
 	},

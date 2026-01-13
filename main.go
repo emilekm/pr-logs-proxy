@@ -61,7 +61,7 @@ func run() error {
 
 	v1.RegisterAdminLogServiceServer(gRPCserver, adminLogService)
 	v1.RegisterJoinLogServiceServer(gRPCserver, joinLogService)
-	v1.RegisterPlayerProfileServiceServer(gRPCserver, playerProfilesService)
+	v1.RegisterPlayerProfilesServiceServer(gRPCserver, playerProfilesService)
 
 	slog.Info(fmt.Sprintf("Starting proxy on port %s", *port))
 	return gRPCserver.Serve(lis)

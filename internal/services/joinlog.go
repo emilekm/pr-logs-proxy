@@ -1,7 +1,10 @@
 package services
 
 import (
+	"bufio"
+	"context"
 	"encoding/binary"
+	"os"
 
 	v1 "github.com/Alliance-Community/pr-logs-proxy/logsproxy/v1"
 	"github.com/Alliance-Community/pr-logs-proxy/pkg/parsers"
@@ -18,7 +21,12 @@ type JoinLogService struct {
 func NewJoinLogService(logPath string) *JoinLogService {
 	return &JoinLogService{
 		updateService: newUpdateService(
-			logPath, parsers.ParseJoinEntry, joinEntryToProto,
+			logPath, parsers.ParseJoinEntry,
+			func(entry *parsers.JoinEntry) *v1.JoinLogUpdatesResponse {
+				return &v1.JoinLogUpdatesResponse{
+					Entry: joinEntryToProto(entry),
+				}
+			},
 		),
 		logPath: logPath,
 	}
@@ -32,7 +40,31 @@ func (s *JoinLogService) JoinLogsUpdates(req *v1.JoinLogUpdatesRequest, stream v
 	return err
 }
 
-func joinEntryToProto(entry *parsers.JoinEntry) *v1.JoinLogUpdatesResponse {
+func (s *JoinLogService) JoinLogs(ctx context.Context, req *v1.JoinLogsRequest) (*v1.JoinLogsResponse, error) {
+	file, err := os.Open(s.logPath)
+	if err != nil {
+		return nil, err
+	}
+	defer file.Close()
+
+	entries := make([]*v1.JoinLogEntry, 0)
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		line := scanner.Text()
+		entry, err := parsers.ParseJoinEntry(line)
+		if err != nil {
+			continue
+		}
+
+		entries = append(entries, joinEntryToProto(entry))
+	}
+
+	return &v1.JoinLogsResponse{
+		Entries: entries,
+	}, nil
+}
+
+func joinEntryToProto(entry *parsers.JoinEntry) *v1.JoinLogEntry {
 	ipv4 := uint32(0)
 	if ip := entry.IP.To4(); ip != nil {
 		ipv4 = binary.BigEndian.Uint32(ip)
@@ -48,15 +80,13 @@ func joinEntryToProto(entry *parsers.JoinEntry) *v1.JoinLogUpdatesResponse {
 		status = v1.AccountStatus_ACCOUNT_STATUS_VAC_BANNED
 	}
 
-	return &v1.JoinLogUpdatesResponse{
-		Entry: &v1.JoinLogEntry{
-			Timestamp:  entry.Timestamp.Unix(),
-			KeyHash:    entry.KeyHash,
-			TrustLevel: uint32(entry.TrustLevel),
-			Name:       entry.Name,
-			CreatedAt:  entry.CreatedAt.Unix(),
-			Ipv4:       ipv4,
-			Status:     status,
-		},
+	return &v1.JoinLogEntry{
+		Timestamp:  entry.Timestamp.Unix(),
+		KeyHash:    entry.KeyHash,
+		TrustLevel: uint32(entry.TrustLevel),
+		Name:       entry.Name,
+		CreatedAt:  entry.CreatedAt.Unix(),
+		Ipv4:       ipv4,
+		Status:     status,
 	}
 }

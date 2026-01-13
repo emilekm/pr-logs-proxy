@@ -10,14 +10,14 @@ import (
 	"google.golang.org/grpc"
 )
 
-type UpdateService_UpdateLogsServer[T v1.AdminLogUpdatesResponse | v1.JoinLogUpdatesResponse | v1.PlayerProfileUpdatesResponse] interface {
+type UpdateService_UpdateLogsServer[T v1.AdminLogUpdatesResponse | v1.JoinLogUpdatesResponse | v1.PlayerProfilesUpdatesResponse] interface {
 	Send(*T) error
 	grpc.ServerStream
 }
 
 type updateService[
 	T parsers.AdminEntry | parsers.JoinEntry | parsers.PlayerProfileEntry,
-	V v1.AdminLogUpdatesResponse | v1.JoinLogUpdatesResponse | v1.PlayerProfileUpdatesResponse,
+	V v1.AdminLogUpdatesResponse | v1.JoinLogUpdatesResponse | v1.PlayerProfilesUpdatesResponse,
 ] struct {
 	logParser     func(string) (*T, error)
 	entryToProto  func(*T) *V
@@ -29,7 +29,7 @@ type updateService[
 
 func newUpdateService[
 	T parsers.AdminEntry | parsers.JoinEntry | parsers.PlayerProfileEntry,
-	V v1.AdminLogUpdatesResponse | v1.JoinLogUpdatesResponse | v1.PlayerProfileUpdatesResponse,
+	V v1.AdminLogUpdatesResponse | v1.JoinLogUpdatesResponse | v1.PlayerProfilesUpdatesResponse,
 ](logPath string, parser func(string) (*T, error), entryToProto func(*T) *V) *updateService[T, V] {
 	return &updateService[T, V]{
 		logParser:     parser,
