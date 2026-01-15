@@ -9,7 +9,9 @@ import (
 	"google.golang.org/grpc"
 )
 
-type UpdateService_UpdateLogsServer[T v1.AdminLogUpdatesResponse | v1.JoinLogUpdatesResponse | v1.PlayerProfilesUpdatesResponse] interface {
+type UpdateService_UpdateLogsServer[
+	T v1.AdminLogUpdatesResponse | v1.JoinLogUpdatesResponse | v1.PlayerProfilesUpdatesResponse,
+] interface {
 	Send(*T) error
 	grpc.ServerStream
 }
