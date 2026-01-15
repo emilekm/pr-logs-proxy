@@ -32,11 +32,7 @@ func NewPlayerProfilesService(logPath string) *PlayerProfilesService {
 }
 
 func (s *PlayerProfilesService) PlayerProfileUpdates(req *v1.PlayerProfilesUpdatesRequest, stream v1.PlayerProfilesService_PlayerProfilesUpdatesServer) error {
-	s.mutex.Lock()
-	defer s.mutex.Unlock()
-	s.updateStreams = append(s.updateStreams, stream)
-	err := s.startTailing()
-	return err
+	return s.startTailing(stream)
 }
 
 func (s *PlayerProfilesService) PlayerProfiles(ctx context.Context, req *v1.PlayerProfilesLogsRequest) (*v1.PlayerProfilesLogsResponse, error) {

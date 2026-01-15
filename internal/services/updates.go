@@ -1,7 +1,6 @@
 package services
 
 import (
-	"context"
 	"sync"
 
 	v1 "github.com/Alliance-Community/pr-logs-proxy/logsproxy/v1"
@@ -23,8 +22,7 @@ type updateService[
 	entryToProto  func(*T) *V
 	updateStreams []UpdateService_UpdateLogsServer[V]
 	logPath       string
-	mutex         sync.Mutex
-	cancel        context.CancelFunc
+	mutex         sync.RWMutex
 }
 
 func newUpdateService[
@@ -39,50 +37,59 @@ func newUpdateService[
 	}
 }
 
-func (s *updateService[T, V]) startTailing() error {
-	if s.cancel != nil {
-		return nil
+func (s *updateService[T, V]) startTailing(sub UpdateService_UpdateLogsServer[V]) error {
+	s.mutex.Lock()
+	s.updateStreams = append(s.updateStreams, sub)
+	if len(s.updateStreams) == 1 {
+		err := s.startTailer()
+		if err != nil {
+			s.mutex.Unlock()
+			return err
+		}
 	}
+	s.mutex.Unlock()
 
-	ctx, cancel := context.WithCancel(context.Background())
-	s.cancel = cancel
+	<-sub.Context().Done()
 
+	return nil
+}
+
+func (s *updateService[T, V]) startTailer() error {
 	tailer, err := tail.TailFile(s.logPath, tail.Config{Follow: true, CompleteLines: true})
 	if err != nil {
 		return err
 	}
 
 	go func() {
-		for {
-			select {
-			case <-ctx.Done():
-				s.cancel = nil
-				return
-			case line := <-tailer.Lines:
-				entry, err := s.logParser(line.Text)
-				if err != nil {
-					continue
-				}
-
-				resp := s.entryToProto(entry)
-
-				toRemove := []int{}
-				s.mutex.Lock()
-				for i, sub := range s.updateStreams {
-					err = sub.Send(resp)
-					if err != nil {
-						toRemove = append(toRemove, i)
-					}
-				}
-				for _, i := range toRemove {
-					s.updateStreams = append(s.updateStreams[:i], s.updateStreams[i+1:]...)
-				}
-				if len(s.updateStreams) == 0 {
-					s.cancel()
-					s.cancel = nil
-				}
-				s.mutex.Unlock()
+		defer tailer.Stop()
+		for line := range tailer.Lines {
+			entry, err := s.logParser(line.Text)
+			if err != nil {
+				continue
 			}
+
+			resp := s.entryToProto(entry)
+
+			toRemove := make([]int, 0)
+			s.mutex.RLock()
+			for i, sub := range s.updateStreams {
+				err = sub.Send(resp)
+				if err != nil {
+					toRemove = append(toRemove, i)
+				}
+			}
+			s.mutex.RUnlock()
+
+			s.mutex.Lock()
+			for _, i := range toRemove {
+				s.updateStreams = append(s.updateStreams[:i], s.updateStreams[i+1:]...)
+			}
+			if len(s.updateStreams) == 0 {
+				s.mutex.Unlock()
+				return
+			}
+			s.mutex.Unlock()
+
 		}
 	}()
 

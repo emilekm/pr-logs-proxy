@@ -36,11 +36,7 @@ func NewAdminLogService(logPath string) *AdminLogService {
 }
 
 func (s *AdminLogService) AdminLogUpdates(req *v1.AdminLogUpdatesRequest, stream v1.AdminLogService_AdminLogUpdatesServer) error {
-	s.mutex.Lock()
-	defer s.mutex.Unlock()
-	s.updateStreams = append(s.updateStreams, stream)
-	err := s.startTailing()
-	return err
+	return s.startTailing(stream)
 }
 
 func (s *AdminLogService) AdminsLogs(ctx context.Context, req *v1.AdminsLogsRequest) (*v1.AdminsLogsResponse, error) {

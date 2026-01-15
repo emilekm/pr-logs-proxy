@@ -33,11 +33,7 @@ func NewJoinLogService(logPath string) *JoinLogService {
 }
 
 func (s *JoinLogService) JoinLogsUpdates(req *v1.JoinLogUpdatesRequest, stream v1.JoinLogService_JoinLogUpdatesServer) error {
-	s.mutex.Lock()
-	defer s.mutex.Unlock()
-	s.updateStreams = append(s.updateStreams, stream)
-	err := s.startTailing()
-	return err
+	return s.startTailing(stream)
 }
 
 func (s *JoinLogService) JoinLogs(ctx context.Context, req *v1.JoinLogsRequest) (*v1.JoinLogsResponse, error) {
