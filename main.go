@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"fmt"
 	"log/slog"
@@ -62,6 +63,23 @@ func run() error {
 	v1.RegisterAdminLogServiceServer(gRPCserver, adminLogService)
 	v1.RegisterJoinLogServiceServer(gRPCserver, joinLogService)
 	v1.RegisterPlayerProfilesServiceServer(gRPCserver, playerProfilesService)
+
+	// Create and register PlayerQueryService (uses service interfaces directly)
+	playerQueryService := services.NewPlayerQueryService(
+		adminLogService,
+		joinLogService,
+		playerProfilesService,
+	)
+	v1.RegisterPlayerQueryServiceServer(gRPCserver, playerQueryService)
+
+	// Start PlayerQueryService in background after server starts
+	go func() {
+		// Wait a moment for server to start
+		ctx := context.Background()
+		if err := playerQueryService.Start(ctx); err != nil {
+			slog.Error("PlayerQueryService failed", slog.Any("error", err))
+		}
+	}()
 
 	slog.Info(fmt.Sprintf("Starting proxy on port %s", *port))
 	return gRPCserver.Serve(lis)

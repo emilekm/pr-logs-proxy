@@ -482,3 +482,130 @@ var PlayerProfilesService_ServiceDesc = grpc.ServiceDesc{
 	},
 	Metadata: "logsproxy/v1/logs.proto",
 }
+
+const (
+	PlayerQueryService_SearchPlayers_FullMethodName = "/logsproxy.v1.PlayerQueryService/SearchPlayers"
+	PlayerQueryService_GetPlayerInfo_FullMethodName = "/logsproxy.v1.PlayerQueryService/GetPlayerInfo"
+)
+
+// PlayerQueryServiceClient is the client API for PlayerQueryService service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
+type PlayerQueryServiceClient interface {
+	SearchPlayers(ctx context.Context, in *PlayerSearchRequest, opts ...grpc.CallOption) (*PlayerSearchResponse, error)
+	GetPlayerInfo(ctx context.Context, in *PlayerInfoRequest, opts ...grpc.CallOption) (*PlayerInfoResponse, error)
+}
+
+type playerQueryServiceClient struct {
+	cc grpc.ClientConnInterface
+}
+
+func NewPlayerQueryServiceClient(cc grpc.ClientConnInterface) PlayerQueryServiceClient {
+	return &playerQueryServiceClient{cc}
+}
+
+func (c *playerQueryServiceClient) SearchPlayers(ctx context.Context, in *PlayerSearchRequest, opts ...grpc.CallOption) (*PlayerSearchResponse, error) {
+	out := new(PlayerSearchResponse)
+	err := c.cc.Invoke(ctx, PlayerQueryService_SearchPlayers_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *playerQueryServiceClient) GetPlayerInfo(ctx context.Context, in *PlayerInfoRequest, opts ...grpc.CallOption) (*PlayerInfoResponse, error) {
+	out := new(PlayerInfoResponse)
+	err := c.cc.Invoke(ctx, PlayerQueryService_GetPlayerInfo_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// PlayerQueryServiceServer is the server API for PlayerQueryService service.
+// All implementations must embed UnimplementedPlayerQueryServiceServer
+// for forward compatibility
+type PlayerQueryServiceServer interface {
+	SearchPlayers(context.Context, *PlayerSearchRequest) (*PlayerSearchResponse, error)
+	GetPlayerInfo(context.Context, *PlayerInfoRequest) (*PlayerInfoResponse, error)
+	mustEmbedUnimplementedPlayerQueryServiceServer()
+}
+
+// UnimplementedPlayerQueryServiceServer must be embedded to have forward compatible implementations.
+type UnimplementedPlayerQueryServiceServer struct {
+}
+
+func (UnimplementedPlayerQueryServiceServer) SearchPlayers(context.Context, *PlayerSearchRequest) (*PlayerSearchResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SearchPlayers not implemented")
+}
+func (UnimplementedPlayerQueryServiceServer) GetPlayerInfo(context.Context, *PlayerInfoRequest) (*PlayerInfoResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetPlayerInfo not implemented")
+}
+func (UnimplementedPlayerQueryServiceServer) mustEmbedUnimplementedPlayerQueryServiceServer() {}
+
+// UnsafePlayerQueryServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to PlayerQueryServiceServer will
+// result in compilation errors.
+type UnsafePlayerQueryServiceServer interface {
+	mustEmbedUnimplementedPlayerQueryServiceServer()
+}
+
+func RegisterPlayerQueryServiceServer(s grpc.ServiceRegistrar, srv PlayerQueryServiceServer) {
+	s.RegisterService(&PlayerQueryService_ServiceDesc, srv)
+}
+
+func _PlayerQueryService_SearchPlayers_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PlayerSearchRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(PlayerQueryServiceServer).SearchPlayers(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: PlayerQueryService_SearchPlayers_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(PlayerQueryServiceServer).SearchPlayers(ctx, req.(*PlayerSearchRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _PlayerQueryService_GetPlayerInfo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PlayerInfoRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(PlayerQueryServiceServer).GetPlayerInfo(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: PlayerQueryService_GetPlayerInfo_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(PlayerQueryServiceServer).GetPlayerInfo(ctx, req.(*PlayerInfoRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+// PlayerQueryService_ServiceDesc is the grpc.ServiceDesc for PlayerQueryService service.
+// It's only intended for direct use with grpc.RegisterService,
+// and not to be introspected or modified (even as a copy)
+var PlayerQueryService_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "logsproxy.v1.PlayerQueryService",
+	HandlerType: (*PlayerQueryServiceServer)(nil),
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "SearchPlayers",
+			Handler:    _PlayerQueryService_SearchPlayers_Handler,
+		},
+		{
+			MethodName: "GetPlayerInfo",
+			Handler:    _PlayerQueryService_GetPlayerInfo_Handler,
+		},
+	},
+	Streams:  []grpc.StreamDesc{},
+	Metadata: "logsproxy/v1/logs.proto",
+}

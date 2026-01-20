@@ -66,3 +66,56 @@ service PlayerProfilesService {
   rpc PlayerProfilesLogs(PlayerProfilesLogsRequest)
       returns (PlayerProfilesLogsResponse);
 }
+
+// Player query messages
+message PlayerSearchRequest {
+  string player_name = 1;  // Search by name
+}
+
+message PlayerSearchResult {
+  string key_hash = 1;
+  string current_name = 2;
+  repeated string alternate_names = 3;
+}
+
+message PlayerSearchResponse {
+  repeated PlayerSearchResult results = 1;
+}
+
+message PlayerInfoRequest {
+  string key_hash = 1;
+}
+
+message PlayerIP {
+  fixed32 ip = 1;          // IPv4 address as uint32
+  int64 first_seen = 2;
+  int64 last_seen = 3;
+}
+
+message BanStatus {
+  AdminLogEntry ban = 1;     // Ban action
+  AdminLogEntry unban = 2;   // Unban action (optional, may be null)
+}
+
+message ConnectionInfo {
+  string via_key_hash = 1;   // The keyHash that led to discovering this account
+  fixed32 via_ip = 2;        // The IP address that connected them
+  int32 distance_hops = 3;   // Number of hops from the original keyHash
+}
+
+message PlayerHashInfo {
+  string key_hash = 1;
+  repeated string names = 2;           // All names associated with this hash
+  repeated PlayerIP ips = 3;           // All IPs associated with this hash
+  BanStatus ban_status = 4;            // Ban and unban actions (optional)
+  ConnectionInfo connection = 5;       // How this account was discovered (null for the requested account)
+}
+
+message PlayerInfoResponse {
+  repeated PlayerHashInfo hashes = 1;  // Array of unique hashes with their associated data
+}
+
+service PlayerQueryService {
+  rpc SearchPlayers(PlayerSearchRequest) returns (PlayerSearchResponse);
+  rpc GetPlayerInfo(PlayerInfoRequest) returns (PlayerInfoResponse);
+}

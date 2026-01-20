@@ -827,6 +827,518 @@ func (x *PlayerProfilesLogsResponse) GetEntries() []*PlayerProfileEntry {
 	return nil
 }
 
+// Player query messages
+type PlayerSearchRequest struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	PlayerName string `protobuf:"bytes,1,opt,name=player_name,json=playerName,proto3" json:"player_name,omitempty"` // Search by name
+}
+
+func (x *PlayerSearchRequest) Reset() {
+	*x = PlayerSearchRequest{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_logsproxy_v1_logs_proto_msgTypes[15]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *PlayerSearchRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*PlayerSearchRequest) ProtoMessage() {}
+
+func (x *PlayerSearchRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_logsproxy_v1_logs_proto_msgTypes[15]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use PlayerSearchRequest.ProtoReflect.Descriptor instead.
+func (*PlayerSearchRequest) Descriptor() ([]byte, []int) {
+	return file_logsproxy_v1_logs_proto_rawDescGZIP(), []int{15}
+}
+
+func (x *PlayerSearchRequest) GetPlayerName() string {
+	if x != nil {
+		return x.PlayerName
+	}
+	return ""
+}
+
+type PlayerSearchResult struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	KeyHash        string   `protobuf:"bytes,1,opt,name=key_hash,json=keyHash,proto3" json:"key_hash,omitempty"`
+	CurrentName    string   `protobuf:"bytes,2,opt,name=current_name,json=currentName,proto3" json:"current_name,omitempty"`
+	AlternateNames []string `protobuf:"bytes,3,rep,name=alternate_names,json=alternateNames,proto3" json:"alternate_names,omitempty"`
+}
+
+func (x *PlayerSearchResult) Reset() {
+	*x = PlayerSearchResult{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_logsproxy_v1_logs_proto_msgTypes[16]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *PlayerSearchResult) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*PlayerSearchResult) ProtoMessage() {}
+
+func (x *PlayerSearchResult) ProtoReflect() protoreflect.Message {
+	mi := &file_logsproxy_v1_logs_proto_msgTypes[16]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use PlayerSearchResult.ProtoReflect.Descriptor instead.
+func (*PlayerSearchResult) Descriptor() ([]byte, []int) {
+	return file_logsproxy_v1_logs_proto_rawDescGZIP(), []int{16}
+}
+
+func (x *PlayerSearchResult) GetKeyHash() string {
+	if x != nil {
+		return x.KeyHash
+	}
+	return ""
+}
+
+func (x *PlayerSearchResult) GetCurrentName() string {
+	if x != nil {
+		return x.CurrentName
+	}
+	return ""
+}
+
+func (x *PlayerSearchResult) GetAlternateNames() []string {
+	if x != nil {
+		return x.AlternateNames
+	}
+	return nil
+}
+
+type PlayerSearchResponse struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Results []*PlayerSearchResult `protobuf:"bytes,1,rep,name=results,proto3" json:"results,omitempty"`
+}
+
+func (x *PlayerSearchResponse) Reset() {
+	*x = PlayerSearchResponse{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_logsproxy_v1_logs_proto_msgTypes[17]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *PlayerSearchResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*PlayerSearchResponse) ProtoMessage() {}
+
+func (x *PlayerSearchResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_logsproxy_v1_logs_proto_msgTypes[17]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use PlayerSearchResponse.ProtoReflect.Descriptor instead.
+func (*PlayerSearchResponse) Descriptor() ([]byte, []int) {
+	return file_logsproxy_v1_logs_proto_rawDescGZIP(), []int{17}
+}
+
+func (x *PlayerSearchResponse) GetResults() []*PlayerSearchResult {
+	if x != nil {
+		return x.Results
+	}
+	return nil
+}
+
+type PlayerInfoRequest struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	KeyHash string `protobuf:"bytes,1,opt,name=key_hash,json=keyHash,proto3" json:"key_hash,omitempty"`
+}
+
+func (x *PlayerInfoRequest) Reset() {
+	*x = PlayerInfoRequest{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_logsproxy_v1_logs_proto_msgTypes[18]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *PlayerInfoRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*PlayerInfoRequest) ProtoMessage() {}
+
+func (x *PlayerInfoRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_logsproxy_v1_logs_proto_msgTypes[18]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use PlayerInfoRequest.ProtoReflect.Descriptor instead.
+func (*PlayerInfoRequest) Descriptor() ([]byte, []int) {
+	return file_logsproxy_v1_logs_proto_rawDescGZIP(), []int{18}
+}
+
+func (x *PlayerInfoRequest) GetKeyHash() string {
+	if x != nil {
+		return x.KeyHash
+	}
+	return ""
+}
+
+type PlayerIP struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Ip        uint32 `protobuf:"fixed32,1,opt,name=ip,proto3" json:"ip,omitempty"` // IPv4 address as uint32
+	FirstSeen int64  `protobuf:"varint,2,opt,name=first_seen,json=firstSeen,proto3" json:"first_seen,omitempty"`
+	LastSeen  int64  `protobuf:"varint,3,opt,name=last_seen,json=lastSeen,proto3" json:"last_seen,omitempty"`
+}
+
+func (x *PlayerIP) Reset() {
+	*x = PlayerIP{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_logsproxy_v1_logs_proto_msgTypes[19]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *PlayerIP) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*PlayerIP) ProtoMessage() {}
+
+func (x *PlayerIP) ProtoReflect() protoreflect.Message {
+	mi := &file_logsproxy_v1_logs_proto_msgTypes[19]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use PlayerIP.ProtoReflect.Descriptor instead.
+func (*PlayerIP) Descriptor() ([]byte, []int) {
+	return file_logsproxy_v1_logs_proto_rawDescGZIP(), []int{19}
+}
+
+func (x *PlayerIP) GetIp() uint32 {
+	if x != nil {
+		return x.Ip
+	}
+	return 0
+}
+
+func (x *PlayerIP) GetFirstSeen() int64 {
+	if x != nil {
+		return x.FirstSeen
+	}
+	return 0
+}
+
+func (x *PlayerIP) GetLastSeen() int64 {
+	if x != nil {
+		return x.LastSeen
+	}
+	return 0
+}
+
+type BanStatus struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Ban   *AdminLogEntry `protobuf:"bytes,1,opt,name=ban,proto3" json:"ban,omitempty"`     // Ban action
+	Unban *AdminLogEntry `protobuf:"bytes,2,opt,name=unban,proto3" json:"unban,omitempty"` // Unban action (optional, may be null)
+}
+
+func (x *BanStatus) Reset() {
+	*x = BanStatus{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_logsproxy_v1_logs_proto_msgTypes[20]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *BanStatus) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*BanStatus) ProtoMessage() {}
+
+func (x *BanStatus) ProtoReflect() protoreflect.Message {
+	mi := &file_logsproxy_v1_logs_proto_msgTypes[20]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use BanStatus.ProtoReflect.Descriptor instead.
+func (*BanStatus) Descriptor() ([]byte, []int) {
+	return file_logsproxy_v1_logs_proto_rawDescGZIP(), []int{20}
+}
+
+func (x *BanStatus) GetBan() *AdminLogEntry {
+	if x != nil {
+		return x.Ban
+	}
+	return nil
+}
+
+func (x *BanStatus) GetUnban() *AdminLogEntry {
+	if x != nil {
+		return x.Unban
+	}
+	return nil
+}
+
+type ConnectionInfo struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	ViaKeyHash   string `protobuf:"bytes,1,opt,name=via_key_hash,json=viaKeyHash,proto3" json:"via_key_hash,omitempty"`      // The keyHash that led to discovering this account
+	ViaIp        uint32 `protobuf:"fixed32,2,opt,name=via_ip,json=viaIp,proto3" json:"via_ip,omitempty"`                     // The IP address that connected them
+	DistanceHops int32  `protobuf:"varint,3,opt,name=distance_hops,json=distanceHops,proto3" json:"distance_hops,omitempty"` // Number of hops from the original keyHash
+}
+
+func (x *ConnectionInfo) Reset() {
+	*x = ConnectionInfo{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_logsproxy_v1_logs_proto_msgTypes[21]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *ConnectionInfo) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ConnectionInfo) ProtoMessage() {}
+
+func (x *ConnectionInfo) ProtoReflect() protoreflect.Message {
+	mi := &file_logsproxy_v1_logs_proto_msgTypes[21]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ConnectionInfo.ProtoReflect.Descriptor instead.
+func (*ConnectionInfo) Descriptor() ([]byte, []int) {
+	return file_logsproxy_v1_logs_proto_rawDescGZIP(), []int{21}
+}
+
+func (x *ConnectionInfo) GetViaKeyHash() string {
+	if x != nil {
+		return x.ViaKeyHash
+	}
+	return ""
+}
+
+func (x *ConnectionInfo) GetViaIp() uint32 {
+	if x != nil {
+		return x.ViaIp
+	}
+	return 0
+}
+
+func (x *ConnectionInfo) GetDistanceHops() int32 {
+	if x != nil {
+		return x.DistanceHops
+	}
+	return 0
+}
+
+type PlayerHashInfo struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	KeyHash    string          `protobuf:"bytes,1,opt,name=key_hash,json=keyHash,proto3" json:"key_hash,omitempty"`
+	Names      []string        `protobuf:"bytes,2,rep,name=names,proto3" json:"names,omitempty"`                          // All names associated with this hash
+	Ips        []*PlayerIP     `protobuf:"bytes,3,rep,name=ips,proto3" json:"ips,omitempty"`                              // All IPs associated with this hash
+	BanStatus  *BanStatus      `protobuf:"bytes,4,opt,name=ban_status,json=banStatus,proto3" json:"ban_status,omitempty"` // Ban and unban actions (optional)
+	Connection *ConnectionInfo `protobuf:"bytes,5,opt,name=connection,proto3" json:"connection,omitempty"`                // How this account was discovered (null for the requested account)
+}
+
+func (x *PlayerHashInfo) Reset() {
+	*x = PlayerHashInfo{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_logsproxy_v1_logs_proto_msgTypes[22]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *PlayerHashInfo) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*PlayerHashInfo) ProtoMessage() {}
+
+func (x *PlayerHashInfo) ProtoReflect() protoreflect.Message {
+	mi := &file_logsproxy_v1_logs_proto_msgTypes[22]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use PlayerHashInfo.ProtoReflect.Descriptor instead.
+func (*PlayerHashInfo) Descriptor() ([]byte, []int) {
+	return file_logsproxy_v1_logs_proto_rawDescGZIP(), []int{22}
+}
+
+func (x *PlayerHashInfo) GetKeyHash() string {
+	if x != nil {
+		return x.KeyHash
+	}
+	return ""
+}
+
+func (x *PlayerHashInfo) GetNames() []string {
+	if x != nil {
+		return x.Names
+	}
+	return nil
+}
+
+func (x *PlayerHashInfo) GetIps() []*PlayerIP {
+	if x != nil {
+		return x.Ips
+	}
+	return nil
+}
+
+func (x *PlayerHashInfo) GetBanStatus() *BanStatus {
+	if x != nil {
+		return x.BanStatus
+	}
+	return nil
+}
+
+func (x *PlayerHashInfo) GetConnection() *ConnectionInfo {
+	if x != nil {
+		return x.Connection
+	}
+	return nil
+}
+
+type PlayerInfoResponse struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Hashes []*PlayerHashInfo `protobuf:"bytes,1,rep,name=hashes,proto3" json:"hashes,omitempty"` // Array of unique hashes with their associated data
+}
+
+func (x *PlayerInfoResponse) Reset() {
+	*x = PlayerInfoResponse{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_logsproxy_v1_logs_proto_msgTypes[23]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *PlayerInfoResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*PlayerInfoResponse) ProtoMessage() {}
+
+func (x *PlayerInfoResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_logsproxy_v1_logs_proto_msgTypes[23]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use PlayerInfoResponse.ProtoReflect.Descriptor instead.
+func (*PlayerInfoResponse) Descriptor() ([]byte, []int) {
+	return file_logsproxy_v1_logs_proto_rawDescGZIP(), []int{23}
+}
+
+func (x *PlayerInfoResponse) GetHashes() []*PlayerHashInfo {
+	if x != nil {
+		return x.Hashes
+	}
+	return nil
+}
+
 var File_logsproxy_v1_logs_proto protoreflect.FileDescriptor
 
 var file_logsproxy_v1_logs_proto_rawDesc = []byte{
@@ -904,7 +1416,65 @@ var file_logsproxy_v1_logs_proto_rawDesc = []byte{
 	0x07, 0x65, 0x6e, 0x74, 0x72, 0x69, 0x65, 0x73, 0x18, 0x01, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x20,
 	0x2e, 0x6c, 0x6f, 0x67, 0x73, 0x70, 0x72, 0x6f, 0x78, 0x79, 0x2e, 0x76, 0x31, 0x2e, 0x50, 0x6c,
 	0x61, 0x79, 0x65, 0x72, 0x50, 0x72, 0x6f, 0x66, 0x69, 0x6c, 0x65, 0x45, 0x6e, 0x74, 0x72, 0x79,
-	0x52, 0x07, 0x65, 0x6e, 0x74, 0x72, 0x69, 0x65, 0x73, 0x2a, 0x89, 0x01, 0x0a, 0x0d, 0x41, 0x63,
+	0x52, 0x07, 0x65, 0x6e, 0x74, 0x72, 0x69, 0x65, 0x73, 0x22, 0x36, 0x0a, 0x13, 0x50, 0x6c, 0x61,
+	0x79, 0x65, 0x72, 0x53, 0x65, 0x61, 0x72, 0x63, 0x68, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74,
+	0x12, 0x1f, 0x0a, 0x0b, 0x70, 0x6c, 0x61, 0x79, 0x65, 0x72, 0x5f, 0x6e, 0x61, 0x6d, 0x65, 0x18,
+	0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x0a, 0x70, 0x6c, 0x61, 0x79, 0x65, 0x72, 0x4e, 0x61, 0x6d,
+	0x65, 0x22, 0x7b, 0x0a, 0x12, 0x50, 0x6c, 0x61, 0x79, 0x65, 0x72, 0x53, 0x65, 0x61, 0x72, 0x63,
+	0x68, 0x52, 0x65, 0x73, 0x75, 0x6c, 0x74, 0x12, 0x19, 0x0a, 0x08, 0x6b, 0x65, 0x79, 0x5f, 0x68,
+	0x61, 0x73, 0x68, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x07, 0x6b, 0x65, 0x79, 0x48, 0x61,
+	0x73, 0x68, 0x12, 0x21, 0x0a, 0x0c, 0x63, 0x75, 0x72, 0x72, 0x65, 0x6e, 0x74, 0x5f, 0x6e, 0x61,
+	0x6d, 0x65, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x0b, 0x63, 0x75, 0x72, 0x72, 0x65, 0x6e,
+	0x74, 0x4e, 0x61, 0x6d, 0x65, 0x12, 0x27, 0x0a, 0x0f, 0x61, 0x6c, 0x74, 0x65, 0x72, 0x6e, 0x61,
+	0x74, 0x65, 0x5f, 0x6e, 0x61, 0x6d, 0x65, 0x73, 0x18, 0x03, 0x20, 0x03, 0x28, 0x09, 0x52, 0x0e,
+	0x61, 0x6c, 0x74, 0x65, 0x72, 0x6e, 0x61, 0x74, 0x65, 0x4e, 0x61, 0x6d, 0x65, 0x73, 0x22, 0x52,
+	0x0a, 0x14, 0x50, 0x6c, 0x61, 0x79, 0x65, 0x72, 0x53, 0x65, 0x61, 0x72, 0x63, 0x68, 0x52, 0x65,
+	0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x3a, 0x0a, 0x07, 0x72, 0x65, 0x73, 0x75, 0x6c, 0x74,
+	0x73, 0x18, 0x01, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x20, 0x2e, 0x6c, 0x6f, 0x67, 0x73, 0x70, 0x72,
+	0x6f, 0x78, 0x79, 0x2e, 0x76, 0x31, 0x2e, 0x50, 0x6c, 0x61, 0x79, 0x65, 0x72, 0x53, 0x65, 0x61,
+	0x72, 0x63, 0x68, 0x52, 0x65, 0x73, 0x75, 0x6c, 0x74, 0x52, 0x07, 0x72, 0x65, 0x73, 0x75, 0x6c,
+	0x74, 0x73, 0x22, 0x2e, 0x0a, 0x11, 0x50, 0x6c, 0x61, 0x79, 0x65, 0x72, 0x49, 0x6e, 0x66, 0x6f,
+	0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x19, 0x0a, 0x08, 0x6b, 0x65, 0x79, 0x5f, 0x68,
+	0x61, 0x73, 0x68, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x07, 0x6b, 0x65, 0x79, 0x48, 0x61,
+	0x73, 0x68, 0x22, 0x56, 0x0a, 0x08, 0x50, 0x6c, 0x61, 0x79, 0x65, 0x72, 0x49, 0x50, 0x12, 0x0e,
+	0x0a, 0x02, 0x69, 0x70, 0x18, 0x01, 0x20, 0x01, 0x28, 0x07, 0x52, 0x02, 0x69, 0x70, 0x12, 0x1d,
+	0x0a, 0x0a, 0x66, 0x69, 0x72, 0x73, 0x74, 0x5f, 0x73, 0x65, 0x65, 0x6e, 0x18, 0x02, 0x20, 0x01,
+	0x28, 0x03, 0x52, 0x09, 0x66, 0x69, 0x72, 0x73, 0x74, 0x53, 0x65, 0x65, 0x6e, 0x12, 0x1b, 0x0a,
+	0x09, 0x6c, 0x61, 0x73, 0x74, 0x5f, 0x73, 0x65, 0x65, 0x6e, 0x18, 0x03, 0x20, 0x01, 0x28, 0x03,
+	0x52, 0x08, 0x6c, 0x61, 0x73, 0x74, 0x53, 0x65, 0x65, 0x6e, 0x22, 0x6d, 0x0a, 0x09, 0x42, 0x61,
+	0x6e, 0x53, 0x74, 0x61, 0x74, 0x75, 0x73, 0x12, 0x2d, 0x0a, 0x03, 0x62, 0x61, 0x6e, 0x18, 0x01,
+	0x20, 0x01, 0x28, 0x0b, 0x32, 0x1b, 0x2e, 0x6c, 0x6f, 0x67, 0x73, 0x70, 0x72, 0x6f, 0x78, 0x79,
+	0x2e, 0x76, 0x31, 0x2e, 0x41, 0x64, 0x6d, 0x69, 0x6e, 0x4c, 0x6f, 0x67, 0x45, 0x6e, 0x74, 0x72,
+	0x79, 0x52, 0x03, 0x62, 0x61, 0x6e, 0x12, 0x31, 0x0a, 0x05, 0x75, 0x6e, 0x62, 0x61, 0x6e, 0x18,
+	0x02, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x1b, 0x2e, 0x6c, 0x6f, 0x67, 0x73, 0x70, 0x72, 0x6f, 0x78,
+	0x79, 0x2e, 0x76, 0x31, 0x2e, 0x41, 0x64, 0x6d, 0x69, 0x6e, 0x4c, 0x6f, 0x67, 0x45, 0x6e, 0x74,
+	0x72, 0x79, 0x52, 0x05, 0x75, 0x6e, 0x62, 0x61, 0x6e, 0x22, 0x6e, 0x0a, 0x0e, 0x43, 0x6f, 0x6e,
+	0x6e, 0x65, 0x63, 0x74, 0x69, 0x6f, 0x6e, 0x49, 0x6e, 0x66, 0x6f, 0x12, 0x20, 0x0a, 0x0c, 0x76,
+	0x69, 0x61, 0x5f, 0x6b, 0x65, 0x79, 0x5f, 0x68, 0x61, 0x73, 0x68, 0x18, 0x01, 0x20, 0x01, 0x28,
+	0x09, 0x52, 0x0a, 0x76, 0x69, 0x61, 0x4b, 0x65, 0x79, 0x48, 0x61, 0x73, 0x68, 0x12, 0x15, 0x0a,
+	0x06, 0x76, 0x69, 0x61, 0x5f, 0x69, 0x70, 0x18, 0x02, 0x20, 0x01, 0x28, 0x07, 0x52, 0x05, 0x76,
+	0x69, 0x61, 0x49, 0x70, 0x12, 0x23, 0x0a, 0x0d, 0x64, 0x69, 0x73, 0x74, 0x61, 0x6e, 0x63, 0x65,
+	0x5f, 0x68, 0x6f, 0x70, 0x73, 0x18, 0x03, 0x20, 0x01, 0x28, 0x05, 0x52, 0x0c, 0x64, 0x69, 0x73,
+	0x74, 0x61, 0x6e, 0x63, 0x65, 0x48, 0x6f, 0x70, 0x73, 0x22, 0xe1, 0x01, 0x0a, 0x0e, 0x50, 0x6c,
+	0x61, 0x79, 0x65, 0x72, 0x48, 0x61, 0x73, 0x68, 0x49, 0x6e, 0x66, 0x6f, 0x12, 0x19, 0x0a, 0x08,
+	0x6b, 0x65, 0x79, 0x5f, 0x68, 0x61, 0x73, 0x68, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x07,
+	0x6b, 0x65, 0x79, 0x48, 0x61, 0x73, 0x68, 0x12, 0x14, 0x0a, 0x05, 0x6e, 0x61, 0x6d, 0x65, 0x73,
+	0x18, 0x02, 0x20, 0x03, 0x28, 0x09, 0x52, 0x05, 0x6e, 0x61, 0x6d, 0x65, 0x73, 0x12, 0x28, 0x0a,
+	0x03, 0x69, 0x70, 0x73, 0x18, 0x03, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x16, 0x2e, 0x6c, 0x6f, 0x67,
+	0x73, 0x70, 0x72, 0x6f, 0x78, 0x79, 0x2e, 0x76, 0x31, 0x2e, 0x50, 0x6c, 0x61, 0x79, 0x65, 0x72,
+	0x49, 0x50, 0x52, 0x03, 0x69, 0x70, 0x73, 0x12, 0x36, 0x0a, 0x0a, 0x62, 0x61, 0x6e, 0x5f, 0x73,
+	0x74, 0x61, 0x74, 0x75, 0x73, 0x18, 0x04, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x17, 0x2e, 0x6c, 0x6f,
+	0x67, 0x73, 0x70, 0x72, 0x6f, 0x78, 0x79, 0x2e, 0x76, 0x31, 0x2e, 0x42, 0x61, 0x6e, 0x53, 0x74,
+	0x61, 0x74, 0x75, 0x73, 0x52, 0x09, 0x62, 0x61, 0x6e, 0x53, 0x74, 0x61, 0x74, 0x75, 0x73, 0x12,
+	0x3c, 0x0a, 0x0a, 0x63, 0x6f, 0x6e, 0x6e, 0x65, 0x63, 0x74, 0x69, 0x6f, 0x6e, 0x18, 0x05, 0x20,
+	0x01, 0x28, 0x0b, 0x32, 0x1c, 0x2e, 0x6c, 0x6f, 0x67, 0x73, 0x70, 0x72, 0x6f, 0x78, 0x79, 0x2e,
+	0x76, 0x31, 0x2e, 0x43, 0x6f, 0x6e, 0x6e, 0x65, 0x63, 0x74, 0x69, 0x6f, 0x6e, 0x49, 0x6e, 0x66,
+	0x6f, 0x52, 0x0a, 0x63, 0x6f, 0x6e, 0x6e, 0x65, 0x63, 0x74, 0x69, 0x6f, 0x6e, 0x22, 0x4a, 0x0a,
+	0x12, 0x50, 0x6c, 0x61, 0x79, 0x65, 0x72, 0x49, 0x6e, 0x66, 0x6f, 0x52, 0x65, 0x73, 0x70, 0x6f,
+	0x6e, 0x73, 0x65, 0x12, 0x34, 0x0a, 0x06, 0x68, 0x61, 0x73, 0x68, 0x65, 0x73, 0x18, 0x01, 0x20,
+	0x03, 0x28, 0x0b, 0x32, 0x1c, 0x2e, 0x6c, 0x6f, 0x67, 0x73, 0x70, 0x72, 0x6f, 0x78, 0x79, 0x2e,
+	0x76, 0x31, 0x2e, 0x50, 0x6c, 0x61, 0x79, 0x65, 0x72, 0x48, 0x61, 0x73, 0x68, 0x49, 0x6e, 0x66,
+	0x6f, 0x52, 0x06, 0x68, 0x61, 0x73, 0x68, 0x65, 0x73, 0x2a, 0x89, 0x01, 0x0a, 0x0d, 0x41, 0x63,
 	0x63, 0x6f, 0x75, 0x6e, 0x74, 0x53, 0x74, 0x61, 0x74, 0x75, 0x73, 0x12, 0x1e, 0x0a, 0x1a, 0x41,
 	0x43, 0x43, 0x4f, 0x55, 0x4e, 0x54, 0x5f, 0x53, 0x54, 0x41, 0x54, 0x55, 0x53, 0x5f, 0x55, 0x4e,
 	0x53, 0x50, 0x45, 0x43, 0x49, 0x46, 0x49, 0x45, 0x44, 0x10, 0x00, 0x12, 0x19, 0x0a, 0x15, 0x41,
@@ -953,11 +1523,23 @@ var file_logsproxy_v1_logs_proto_rawDesc = []byte{
 	0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x28, 0x2e, 0x6c, 0x6f, 0x67, 0x73, 0x70, 0x72, 0x6f,
 	0x78, 0x79, 0x2e, 0x76, 0x31, 0x2e, 0x50, 0x6c, 0x61, 0x79, 0x65, 0x72, 0x50, 0x72, 0x6f, 0x66,
 	0x69, 0x6c, 0x65, 0x73, 0x4c, 0x6f, 0x67, 0x73, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65,
-	0x42, 0x3a, 0x5a, 0x38, 0x67, 0x69, 0x74, 0x68, 0x75, 0x62, 0x2e, 0x63, 0x6f, 0x6d, 0x2f, 0x61,
-	0x6c, 0x6c, 0x69, 0x61, 0x6e, 0x63, 0x65, 0x2d, 0x63, 0x6f, 0x6d, 0x6d, 0x75, 0x6e, 0x69, 0x74,
-	0x79, 0x2f, 0x70, 0x72, 0x2d, 0x6c, 0x6f, 0x67, 0x73, 0x2d, 0x70, 0x72, 0x6f, 0x78, 0x79, 0x2f,
-	0x6c, 0x6f, 0x67, 0x73, 0x70, 0x72, 0x6f, 0x78, 0x79, 0x2f, 0x76, 0x31, 0x62, 0x06, 0x70, 0x72,
-	0x6f, 0x74, 0x6f, 0x33,
+	0x32, 0xc0, 0x01, 0x0a, 0x12, 0x50, 0x6c, 0x61, 0x79, 0x65, 0x72, 0x51, 0x75, 0x65, 0x72, 0x79,
+	0x53, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x12, 0x56, 0x0a, 0x0d, 0x53, 0x65, 0x61, 0x72, 0x63,
+	0x68, 0x50, 0x6c, 0x61, 0x79, 0x65, 0x72, 0x73, 0x12, 0x21, 0x2e, 0x6c, 0x6f, 0x67, 0x73, 0x70,
+	0x72, 0x6f, 0x78, 0x79, 0x2e, 0x76, 0x31, 0x2e, 0x50, 0x6c, 0x61, 0x79, 0x65, 0x72, 0x53, 0x65,
+	0x61, 0x72, 0x63, 0x68, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x22, 0x2e, 0x6c, 0x6f,
+	0x67, 0x73, 0x70, 0x72, 0x6f, 0x78, 0x79, 0x2e, 0x76, 0x31, 0x2e, 0x50, 0x6c, 0x61, 0x79, 0x65,
+	0x72, 0x53, 0x65, 0x61, 0x72, 0x63, 0x68, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12,
+	0x52, 0x0a, 0x0d, 0x47, 0x65, 0x74, 0x50, 0x6c, 0x61, 0x79, 0x65, 0x72, 0x49, 0x6e, 0x66, 0x6f,
+	0x12, 0x1f, 0x2e, 0x6c, 0x6f, 0x67, 0x73, 0x70, 0x72, 0x6f, 0x78, 0x79, 0x2e, 0x76, 0x31, 0x2e,
+	0x50, 0x6c, 0x61, 0x79, 0x65, 0x72, 0x49, 0x6e, 0x66, 0x6f, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73,
+	0x74, 0x1a, 0x20, 0x2e, 0x6c, 0x6f, 0x67, 0x73, 0x70, 0x72, 0x6f, 0x78, 0x79, 0x2e, 0x76, 0x31,
+	0x2e, 0x50, 0x6c, 0x61, 0x79, 0x65, 0x72, 0x49, 0x6e, 0x66, 0x6f, 0x52, 0x65, 0x73, 0x70, 0x6f,
+	0x6e, 0x73, 0x65, 0x42, 0x3a, 0x5a, 0x38, 0x67, 0x69, 0x74, 0x68, 0x75, 0x62, 0x2e, 0x63, 0x6f,
+	0x6d, 0x2f, 0x61, 0x6c, 0x6c, 0x69, 0x61, 0x6e, 0x63, 0x65, 0x2d, 0x63, 0x6f, 0x6d, 0x6d, 0x75,
+	0x6e, 0x69, 0x74, 0x79, 0x2f, 0x70, 0x72, 0x2d, 0x6c, 0x6f, 0x67, 0x73, 0x2d, 0x70, 0x72, 0x6f,
+	0x78, 0x79, 0x2f, 0x6c, 0x6f, 0x67, 0x73, 0x70, 0x72, 0x6f, 0x78, 0x79, 0x2f, 0x76, 0x31, 0x62,
+	0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -973,7 +1555,7 @@ func file_logsproxy_v1_logs_proto_rawDescGZIP() []byte {
 }
 
 var file_logsproxy_v1_logs_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_logsproxy_v1_logs_proto_msgTypes = make([]protoimpl.MessageInfo, 15)
+var file_logsproxy_v1_logs_proto_msgTypes = make([]protoimpl.MessageInfo, 24)
 var file_logsproxy_v1_logs_proto_goTypes = []interface{}{
 	(AccountStatus)(0),                    // 0: logsproxy.v1.AccountStatus
 	(*AdminLogEntry)(nil),                 // 1: logsproxy.v1.AdminLogEntry
@@ -991,6 +1573,15 @@ var file_logsproxy_v1_logs_proto_goTypes = []interface{}{
 	(*PlayerProfilesUpdatesResponse)(nil), // 13: logsproxy.v1.PlayerProfilesUpdatesResponse
 	(*PlayerProfilesLogsRequest)(nil),     // 14: logsproxy.v1.PlayerProfilesLogsRequest
 	(*PlayerProfilesLogsResponse)(nil),    // 15: logsproxy.v1.PlayerProfilesLogsResponse
+	(*PlayerSearchRequest)(nil),           // 16: logsproxy.v1.PlayerSearchRequest
+	(*PlayerSearchResult)(nil),            // 17: logsproxy.v1.PlayerSearchResult
+	(*PlayerSearchResponse)(nil),          // 18: logsproxy.v1.PlayerSearchResponse
+	(*PlayerInfoRequest)(nil),             // 19: logsproxy.v1.PlayerInfoRequest
+	(*PlayerIP)(nil),                      // 20: logsproxy.v1.PlayerIP
+	(*BanStatus)(nil),                     // 21: logsproxy.v1.BanStatus
+	(*ConnectionInfo)(nil),                // 22: logsproxy.v1.ConnectionInfo
+	(*PlayerHashInfo)(nil),                // 23: logsproxy.v1.PlayerHashInfo
+	(*PlayerInfoResponse)(nil),            // 24: logsproxy.v1.PlayerInfoResponse
 }
 var file_logsproxy_v1_logs_proto_depIdxs = []int32{
 	1,  // 0: logsproxy.v1.AdminLogUpdatesResponse.entry:type_name -> logsproxy.v1.AdminLogEntry
@@ -1000,23 +1591,34 @@ var file_logsproxy_v1_logs_proto_depIdxs = []int32{
 	6,  // 4: logsproxy.v1.JoinLogsResponse.entries:type_name -> logsproxy.v1.JoinLogEntry
 	11, // 5: logsproxy.v1.PlayerProfilesUpdatesResponse.entry:type_name -> logsproxy.v1.PlayerProfileEntry
 	11, // 6: logsproxy.v1.PlayerProfilesLogsResponse.entries:type_name -> logsproxy.v1.PlayerProfileEntry
-	2,  // 7: logsproxy.v1.AdminLogService.AdminLogUpdates:input_type -> logsproxy.v1.AdminLogUpdatesRequest
-	4,  // 8: logsproxy.v1.AdminLogService.AdminsLogs:input_type -> logsproxy.v1.AdminsLogsRequest
-	7,  // 9: logsproxy.v1.JoinLogService.JoinLogUpdates:input_type -> logsproxy.v1.JoinLogUpdatesRequest
-	9,  // 10: logsproxy.v1.JoinLogService.JoinLogs:input_type -> logsproxy.v1.JoinLogsRequest
-	12, // 11: logsproxy.v1.PlayerProfilesService.PlayerProfilesUpdates:input_type -> logsproxy.v1.PlayerProfilesUpdatesRequest
-	14, // 12: logsproxy.v1.PlayerProfilesService.PlayerProfilesLogs:input_type -> logsproxy.v1.PlayerProfilesLogsRequest
-	3,  // 13: logsproxy.v1.AdminLogService.AdminLogUpdates:output_type -> logsproxy.v1.AdminLogUpdatesResponse
-	5,  // 14: logsproxy.v1.AdminLogService.AdminsLogs:output_type -> logsproxy.v1.AdminsLogsResponse
-	8,  // 15: logsproxy.v1.JoinLogService.JoinLogUpdates:output_type -> logsproxy.v1.JoinLogUpdatesResponse
-	10, // 16: logsproxy.v1.JoinLogService.JoinLogs:output_type -> logsproxy.v1.JoinLogsResponse
-	13, // 17: logsproxy.v1.PlayerProfilesService.PlayerProfilesUpdates:output_type -> logsproxy.v1.PlayerProfilesUpdatesResponse
-	15, // 18: logsproxy.v1.PlayerProfilesService.PlayerProfilesLogs:output_type -> logsproxy.v1.PlayerProfilesLogsResponse
-	13, // [13:19] is the sub-list for method output_type
-	7,  // [7:13] is the sub-list for method input_type
-	7,  // [7:7] is the sub-list for extension type_name
-	7,  // [7:7] is the sub-list for extension extendee
-	0,  // [0:7] is the sub-list for field type_name
+	17, // 7: logsproxy.v1.PlayerSearchResponse.results:type_name -> logsproxy.v1.PlayerSearchResult
+	1,  // 8: logsproxy.v1.BanStatus.ban:type_name -> logsproxy.v1.AdminLogEntry
+	1,  // 9: logsproxy.v1.BanStatus.unban:type_name -> logsproxy.v1.AdminLogEntry
+	20, // 10: logsproxy.v1.PlayerHashInfo.ips:type_name -> logsproxy.v1.PlayerIP
+	21, // 11: logsproxy.v1.PlayerHashInfo.ban_status:type_name -> logsproxy.v1.BanStatus
+	22, // 12: logsproxy.v1.PlayerHashInfo.connection:type_name -> logsproxy.v1.ConnectionInfo
+	23, // 13: logsproxy.v1.PlayerInfoResponse.hashes:type_name -> logsproxy.v1.PlayerHashInfo
+	2,  // 14: logsproxy.v1.AdminLogService.AdminLogUpdates:input_type -> logsproxy.v1.AdminLogUpdatesRequest
+	4,  // 15: logsproxy.v1.AdminLogService.AdminsLogs:input_type -> logsproxy.v1.AdminsLogsRequest
+	7,  // 16: logsproxy.v1.JoinLogService.JoinLogUpdates:input_type -> logsproxy.v1.JoinLogUpdatesRequest
+	9,  // 17: logsproxy.v1.JoinLogService.JoinLogs:input_type -> logsproxy.v1.JoinLogsRequest
+	12, // 18: logsproxy.v1.PlayerProfilesService.PlayerProfilesUpdates:input_type -> logsproxy.v1.PlayerProfilesUpdatesRequest
+	14, // 19: logsproxy.v1.PlayerProfilesService.PlayerProfilesLogs:input_type -> logsproxy.v1.PlayerProfilesLogsRequest
+	16, // 20: logsproxy.v1.PlayerQueryService.SearchPlayers:input_type -> logsproxy.v1.PlayerSearchRequest
+	19, // 21: logsproxy.v1.PlayerQueryService.GetPlayerInfo:input_type -> logsproxy.v1.PlayerInfoRequest
+	3,  // 22: logsproxy.v1.AdminLogService.AdminLogUpdates:output_type -> logsproxy.v1.AdminLogUpdatesResponse
+	5,  // 23: logsproxy.v1.AdminLogService.AdminsLogs:output_type -> logsproxy.v1.AdminsLogsResponse
+	8,  // 24: logsproxy.v1.JoinLogService.JoinLogUpdates:output_type -> logsproxy.v1.JoinLogUpdatesResponse
+	10, // 25: logsproxy.v1.JoinLogService.JoinLogs:output_type -> logsproxy.v1.JoinLogsResponse
+	13, // 26: logsproxy.v1.PlayerProfilesService.PlayerProfilesUpdates:output_type -> logsproxy.v1.PlayerProfilesUpdatesResponse
+	15, // 27: logsproxy.v1.PlayerProfilesService.PlayerProfilesLogs:output_type -> logsproxy.v1.PlayerProfilesLogsResponse
+	18, // 28: logsproxy.v1.PlayerQueryService.SearchPlayers:output_type -> logsproxy.v1.PlayerSearchResponse
+	24, // 29: logsproxy.v1.PlayerQueryService.GetPlayerInfo:output_type -> logsproxy.v1.PlayerInfoResponse
+	22, // [22:30] is the sub-list for method output_type
+	14, // [14:22] is the sub-list for method input_type
+	14, // [14:14] is the sub-list for extension type_name
+	14, // [14:14] is the sub-list for extension extendee
+	0,  // [0:14] is the sub-list for field type_name
 }
 
 func init() { file_logsproxy_v1_logs_proto_init() }
@@ -1205,6 +1807,114 @@ func file_logsproxy_v1_logs_proto_init() {
 				return nil
 			}
 		}
+		file_logsproxy_v1_logs_proto_msgTypes[15].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*PlayerSearchRequest); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_logsproxy_v1_logs_proto_msgTypes[16].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*PlayerSearchResult); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_logsproxy_v1_logs_proto_msgTypes[17].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*PlayerSearchResponse); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_logsproxy_v1_logs_proto_msgTypes[18].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*PlayerInfoRequest); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_logsproxy_v1_logs_proto_msgTypes[19].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*PlayerIP); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_logsproxy_v1_logs_proto_msgTypes[20].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*BanStatus); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_logsproxy_v1_logs_proto_msgTypes[21].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*ConnectionInfo); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_logsproxy_v1_logs_proto_msgTypes[22].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*PlayerHashInfo); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_logsproxy_v1_logs_proto_msgTypes[23].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*PlayerInfoResponse); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
@@ -1212,9 +1922,9 @@ func file_logsproxy_v1_logs_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_logsproxy_v1_logs_proto_rawDesc,
 			NumEnums:      1,
-			NumMessages:   15,
+			NumMessages:   24,
 			NumExtensions: 0,
-			NumServices:   3,
+			NumServices:   4,
 		},
 		GoTypes:           file_logsproxy_v1_logs_proto_goTypes,
 		DependencyIndexes: file_logsproxy_v1_logs_proto_depIdxs,
