@@ -11,14 +11,20 @@ message AdminLogEntry {
   string target = 4;
   string details = 5;
 }
-message AdminLogUpdatesRequest {}
-message AdminLogUpdatesResponse { AdminLogEntry entry = 1; }
+message AdminLogUpdatesRequest {
+  optional uint64 line_number = 1;
+}
+message AdminLogUpdatesResponse {
+  AdminLogEntry entry = 1;
+  uint64 line_number = 2;
+}
 message AdminsLogsRequest {}
-message AdminsLogsResponse { repeated AdminLogEntry entries = 1; }
+message AdminsLogsResponse {
+  repeated AdminLogEntry entries = 1;
+}
 
 service AdminLogService {
-  rpc AdminLogUpdates(AdminLogUpdatesRequest)
-      returns (stream AdminLogUpdatesResponse);
+  rpc AdminLogUpdates(AdminLogUpdatesRequest) returns (stream AdminLogUpdatesResponse);
   rpc AdminsLogs(AdminsLogsRequest) returns (AdminsLogsResponse);
 }
 
@@ -38,14 +44,20 @@ message JoinLogEntry {
   fixed32 ipv4 = 6;
   AccountStatus status = 7;
 }
-message JoinLogUpdatesRequest {}
-message JoinLogUpdatesResponse { JoinLogEntry entry = 1; }
+message JoinLogUpdatesRequest {
+  optional uint64 line_number = 1;
+}
+message JoinLogUpdatesResponse {
+  JoinLogEntry entry = 1;
+  uint64 line_number = 2;
+}
 message JoinLogsRequest {}
-message JoinLogsResponse { repeated JoinLogEntry entries = 1; }
+message JoinLogsResponse {
+  repeated JoinLogEntry entries = 1;
+}
 
 service JoinLogService {
-  rpc JoinLogUpdates(JoinLogUpdatesRequest)
-      returns (stream JoinLogUpdatesResponse);
+  rpc JoinLogUpdates(JoinLogUpdatesRequest) returns (stream JoinLogUpdatesResponse);
   rpc JoinLogs(JoinLogsRequest) returns (JoinLogsResponse);
 }
 
@@ -55,21 +67,26 @@ message PlayerProfileEntry {
   uint32 trust_level = 3;
   string username = 4;
 }
-message PlayerProfilesUpdatesRequest {}
-message PlayerProfilesUpdatesResponse { PlayerProfileEntry entry = 1; }
+message PlayerProfilesUpdatesRequest {
+  optional uint64 line_number = 1;
+}
+message PlayerProfilesUpdatesResponse {
+  PlayerProfileEntry entry = 1;
+  uint64 line_number = 2;
+}
 message PlayerProfilesLogsRequest {}
-message PlayerProfilesLogsResponse { repeated PlayerProfileEntry entries = 1; }
+message PlayerProfilesLogsResponse {
+  repeated PlayerProfileEntry entries = 1;
+}
 
 service PlayerProfilesService {
-  rpc PlayerProfilesUpdates(PlayerProfilesUpdatesRequest)
-      returns (stream PlayerProfilesUpdatesResponse);
-  rpc PlayerProfilesLogs(PlayerProfilesLogsRequest)
-      returns (PlayerProfilesLogsResponse);
+  rpc PlayerProfilesUpdates(PlayerProfilesUpdatesRequest) returns (stream PlayerProfilesUpdatesResponse);
+  rpc PlayerProfilesLogs(PlayerProfilesLogsRequest) returns (PlayerProfilesLogsResponse);
 }
 
 // Player query messages
 message PlayerSearchRequest {
-  string player_name = 1;  // Search by name
+  string player_name = 1; // Search by name
 }
 
 message PlayerSearchResult {
@@ -87,32 +104,32 @@ message PlayerInfoRequest {
 }
 
 message PlayerIP {
-  fixed32 ip = 1;          // IPv4 address as uint32
+  fixed32 ip = 1; // IPv4 address as uint32
   int64 first_seen = 2;
   int64 last_seen = 3;
 }
 
 message BanStatus {
-  AdminLogEntry ban = 1;     // Ban action
-  AdminLogEntry unban = 2;   // Unban action (optional, may be null)
+  AdminLogEntry ban = 1; // Ban action
+  AdminLogEntry unban = 2; // Unban action (optional, may be null)
 }
 
 message ConnectionInfo {
-  string via_key_hash = 1;   // The keyHash that led to discovering this account
-  fixed32 via_ip = 2;        // The IP address that connected them
-  int32 distance_hops = 3;   // Number of hops from the original keyHash
+  string via_key_hash = 1; // The keyHash that led to discovering this account
+  fixed32 via_ip = 2; // The IP address that connected them
+  int32 distance_hops = 3; // Number of hops from the original keyHash
 }
 
 message PlayerHashInfo {
   string key_hash = 1;
-  repeated string names = 2;           // All names associated with this hash
-  repeated PlayerIP ips = 3;           // All IPs associated with this hash
-  BanStatus ban_status = 4;            // Ban and unban actions (optional)
-  ConnectionInfo connection = 5;       // How this account was discovered (null for the requested account)
+  repeated string names = 2; // All names associated with this hash
+  repeated PlayerIP ips = 3; // All IPs associated with this hash
+  BanStatus ban_status = 4; // Ban and unban actions (optional)
+  ConnectionInfo connection = 5; // How this account was discovered (null for the requested account)
 }
 
 message PlayerInfoResponse {
-  repeated PlayerHashInfo hashes = 1;  // Array of unique hashes with their associated data
+  repeated PlayerHashInfo hashes = 1; // Array of unique hashes with their associated data
 }
 
 service PlayerQueryService {

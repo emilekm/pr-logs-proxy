@@ -21,9 +21,10 @@ func NewAdminLogService(logPath string) (*AdminLogService, error) {
 		func(line string) (*logs.AdminEntry, error) {
 			return logs.ParseAdminEntry(line, logs.DefaultAdminEntryDateFormat)
 		},
-		func(entry *logs.AdminEntry) *v1.AdminLogUpdatesResponse {
+		func(entry *logs.AdminEntry, lineNum uint64) *v1.AdminLogUpdatesResponse {
 			return &v1.AdminLogUpdatesResponse{
-				Entry: adminEntryToProto(entry),
+				Entry:      adminEntryToProto(entry),
+				LineNumber: lineNum,
 			}
 		},
 	)
@@ -38,7 +39,9 @@ func NewAdminLogService(logPath string) (*AdminLogService, error) {
 }
 
 func (s *AdminLogService) AdminLogUpdates(req *v1.AdminLogUpdatesRequest, stream v1.AdminLogService_AdminLogUpdatesServer) error {
-	return s.startTailing(stream)
+	// Extract line number from request (defaults to 0 if not provided)
+	fromLine := req.GetLineNumber()
+	return s.startTailing(stream, fromLine)
 }
 
 func (s *AdminLogService) AdminsLogs(ctx context.Context, req *v1.AdminsLogsRequest) (*v1.AdminsLogsResponse, error) {

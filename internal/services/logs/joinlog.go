@@ -19,9 +19,10 @@ type JoinLogService struct {
 func NewJoinLogService(logPath string) (*JoinLogService, error) {
 	updateSvc, err := newUpdateService(
 		logPath, logs.ParseJoinEntry,
-		func(entry *logs.JoinEntry) *v1.JoinLogUpdatesResponse {
+		func(entry *logs.JoinEntry, lineNum uint64) *v1.JoinLogUpdatesResponse {
 			return &v1.JoinLogUpdatesResponse{
-				Entry: joinEntryToProto(entry),
+				Entry:      joinEntryToProto(entry),
+				LineNumber: lineNum,
 			}
 		},
 	)
@@ -36,7 +37,9 @@ func NewJoinLogService(logPath string) (*JoinLogService, error) {
 }
 
 func (s *JoinLogService) JoinLogsUpdates(req *v1.JoinLogUpdatesRequest, stream v1.JoinLogService_JoinLogUpdatesServer) error {
-	return s.startTailing(stream)
+	// Extract line number from request (defaults to 0 if not provided)
+	fromLine := req.GetLineNumber()
+	return s.startTailing(stream, fromLine)
 }
 
 func (s *JoinLogService) JoinLogs(ctx context.Context, req *v1.JoinLogsRequest) (*v1.JoinLogsResponse, error) {

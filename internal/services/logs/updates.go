@@ -25,7 +25,7 @@ type updateService[
 	V v1.AdminLogUpdatesResponse | v1.JoinLogUpdatesResponse | v1.PlayerProfilesUpdatesResponse,
 ] struct {
 	logParser     func(string) (*T, error)
-	entryToProto  func(*T) *V
+	entryToProto  func(*T, uint64) *V
 	updateStreams []UpdateService_UpdateLogsServer[V]
 	logPath       string
 	mutex         sync.RWMutex
@@ -33,13 +33,16 @@ type updateService[
 	// In-memory storage
 	entries   []*T
 	entriesMu sync.RWMutex
-	lineCount int64
+
+	// Dual counter tracking
+	totalLinesRead      uint64 // Total lines read from file (including unparseable)
+	parsedEntriesCount  uint64 // Number of successfully parsed entries
 }
 
 func newUpdateService[
 	T logs.AdminEntry | logs.JoinEntry | logs.PlayerProfileEntry,
 	V v1.AdminLogUpdatesResponse | v1.JoinLogUpdatesResponse | v1.PlayerProfilesUpdatesResponse,
-](logPath string, parser func(string) (*T, error), entryToProto func(*T) *V) (*updateService[T, V], error) {
+](logPath string, parser func(string) (*T, error), entryToProto func(*T, uint64) *V) (*updateService[T, V], error) {
 	s := &updateService[T, V]{
 		logParser:     parser,
 		entryToProto:  entryToProto,
@@ -58,7 +61,7 @@ func newUpdateService[
 		return nil, fmt.Errorf("failed to start tailer for %s: %w", logPath, err)
 	}
 
-	log.Printf("Loaded %d entries from %s", s.lineCount, logPath)
+	log.Printf("Loaded %d parsed entries from %d total lines in %s", s.parsedEntriesCount, s.totalLinesRead, logPath)
 
 	return s, nil
 }
@@ -72,27 +75,26 @@ func (s *updateService[T, V]) loadAllEntries() error {
 	defer file.Close()
 
 	scanner := bufio.NewScanner(file)
-	lineCount := int64(0)
 
 	for scanner.Scan() {
-		lineCount++
+		s.totalLinesRead++
 		line := scanner.Text()
 
 		entry, err := s.logParser(line)
 		if err != nil {
-			// Skip unparseable lines
+			// Skip unparseable lines but still count total lines
 			continue
 		}
 
 		s.entries = append(s.entries, entry)
+		s.parsedEntriesCount++
 	}
 
 	if err := scanner.Err(); err != nil {
 		return fmt.Errorf("error reading log file: %w", err)
 	}
 
-	s.lineCount = lineCount
-	log.Printf("Parsed %d/%d lines from %s", len(s.entries), lineCount, s.logPath)
+	log.Printf("Parsed %d/%d lines from %s", s.parsedEntriesCount, s.totalLinesRead, s.logPath)
 
 	return nil
 }
@@ -115,7 +117,35 @@ func (s *updateService[T, V]) GetEntryCount() int {
 	return len(s.entries)
 }
 
-func (s *updateService[T, V]) startTailing(sub UpdateService_UpdateLogsServer[V]) error {
+func (s *updateService[T, V]) startTailing(sub UpdateService_UpdateLogsServer[V], fromParsedLine uint64) error {
+	// First, send buffered entries from the requested line
+	s.entriesMu.RLock()
+	var bufferedEntries []*T
+	startingLineNum := fromParsedLine
+
+	if fromParsedLine > 0 && fromParsedLine <= s.parsedEntriesCount {
+		// Client wants to resume from a specific line (1-based)
+		// Send entries starting from fromParsedLine (index fromParsedLine-1)
+		bufferedEntries = s.entries[fromParsedLine-1:]
+		startingLineNum = fromParsedLine
+	} else if fromParsedLine == 0 {
+		// Client wants all entries from the beginning
+		bufferedEntries = s.entries
+		startingLineNum = 1
+	}
+	// If fromParsedLine > parsedEntriesCount, bufferedEntries remains nil (no buffered entries to send)
+
+	s.entriesMu.RUnlock()
+
+	// Send buffered entries
+	for i, entry := range bufferedEntries {
+		resp := s.entryToProto(entry, startingLineNum+uint64(i))
+		if err := sub.Send(resp); err != nil {
+			return err
+		}
+	}
+
+	// Now register for live updates
 	s.mutex.Lock()
 	s.updateStreams = append(s.updateStreams, sub)
 	s.mutex.Unlock()
@@ -130,7 +160,7 @@ func (s *updateService[T, V]) startTailer() error {
 	tailer, err := tail.TailFile(s.logPath, tail.Config{
 		Follow:        true,
 		CompleteLines: true,
-		Location:      &tail.SeekInfo{Offset: s.lineCount, Whence: 0}, // Start at end of file
+		Location:      &tail.SeekInfo{Offset: int64(s.totalLinesRead), Whence: 0}, // Start at end of file
 	})
 	if err != nil {
 		return err
@@ -139,18 +169,25 @@ func (s *updateService[T, V]) startTailer() error {
 	go func() {
 		defer tailer.Stop()
 		for line := range tailer.Lines {
+			// Always increment total lines read
+			s.entriesMu.Lock()
+			s.totalLinesRead++
+			s.entriesMu.Unlock()
+
 			entry, err := s.logParser(line.Text)
 			if err != nil {
+				// Skip unparseable lines but continue tracking total lines
 				continue
 			}
 
-			// Append new entry to in-memory storage
+			// Append new entry to in-memory storage and increment parsed count
 			s.entriesMu.Lock()
 			s.entries = append(s.entries, entry)
-			s.lineCount++
+			s.parsedEntriesCount++
+			currentParsedLine := s.parsedEntriesCount
 			s.entriesMu.Unlock()
 
-			resp := s.entryToProto(entry)
+			resp := s.entryToProto(entry, currentParsedLine)
 
 			toRemove := make([]int, 0)
 			s.mutex.RLock()
@@ -162,9 +199,11 @@ func (s *updateService[T, V]) startTailer() error {
 			}
 			s.mutex.RUnlock()
 
+			// Remove failed streams in reverse order to maintain correct indices
 			s.mutex.Lock()
-			for _, i := range toRemove {
-				s.updateStreams = append(s.updateStreams[:i], s.updateStreams[i+1:]...)
+			for i := len(toRemove) - 1; i >= 0; i-- {
+				idx := toRemove[i]
+				s.updateStreams = append(s.updateStreams[:idx], s.updateStreams[idx+1:]...)
 			}
 			s.mutex.Unlock()
 

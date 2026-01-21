@@ -18,9 +18,10 @@ type PlayerProfilesService struct {
 func NewPlayerProfilesService(logPath string) (*PlayerProfilesService, error) {
 	updateSvc, err := newUpdateService(
 		logPath, logs.ParsePlayerProfileEntry,
-		func(entry *logs.PlayerProfileEntry) *v1.PlayerProfilesUpdatesResponse {
+		func(entry *logs.PlayerProfileEntry, lineNum uint64) *v1.PlayerProfilesUpdatesResponse {
 			return &v1.PlayerProfilesUpdatesResponse{
-				Entry: playerProfileEntryToProto(entry),
+				Entry:      playerProfileEntryToProto(entry),
+				LineNumber: lineNum,
 			}
 		},
 	)
@@ -35,7 +36,9 @@ func NewPlayerProfilesService(logPath string) (*PlayerProfilesService, error) {
 }
 
 func (s *PlayerProfilesService) PlayerProfileUpdates(req *v1.PlayerProfilesUpdatesRequest, stream v1.PlayerProfilesService_PlayerProfilesUpdatesServer) error {
-	return s.startTailing(stream)
+	// Extract line number from request (defaults to 0 if not provided)
+	fromLine := req.GetLineNumber()
+	return s.startTailing(stream, fromLine)
 }
 
 func (s *PlayerProfilesService) PlayerProfiles(ctx context.Context, req *v1.PlayerProfilesLogsRequest) (*v1.PlayerProfilesLogsResponse, error) {
