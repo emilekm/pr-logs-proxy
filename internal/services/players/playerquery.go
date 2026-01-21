@@ -1,4 +1,4 @@
-package services
+package players
 
 import (
 	"context"
@@ -7,6 +7,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/Alliance-Community/pr-logs-proxy/internal/services/logs"
 	v1 "github.com/Alliance-Community/pr-logs-proxy/logsproxy/v1"
 )
 
@@ -19,9 +20,9 @@ var nowFunc = time.Now
 type PlayerQueryService struct {
 	v1.UnimplementedPlayerQueryServiceServer
 
-	adminLogService       *AdminLogService
-	joinLogService        *JoinLogService
-	playerProfilesService *PlayerProfilesService
+	adminLogService       *logs.AdminLogService
+	joinLogService        *logs.JoinLogService
+	playerProfilesService *logs.PlayerProfilesService
 
 	db              *PlayerDatabase
 	coldStartDone   bool
@@ -38,9 +39,9 @@ type bufferedEntries struct {
 
 // NewPlayerQueryService creates a new PlayerQueryService
 func NewPlayerQueryService(
-	adminLogService *AdminLogService,
-	joinLogService *JoinLogService,
-	playerProfilesService *PlayerProfilesService,
+	adminLogService *logs.AdminLogService,
+	joinLogService *logs.JoinLogService,
+	playerProfilesService *logs.PlayerProfilesService,
 ) *PlayerQueryService {
 	return &PlayerQueryService{
 		adminLogService:       adminLogService,

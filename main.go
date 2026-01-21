@@ -8,7 +8,8 @@ import (
 	"net"
 	"path/filepath"
 
-	"github.com/Alliance-Community/pr-logs-proxy/internal/services"
+	"github.com/Alliance-Community/pr-logs-proxy/internal/services/logs"
+	"github.com/Alliance-Community/pr-logs-proxy/internal/services/players"
 	v1 "github.com/Alliance-Community/pr-logs-proxy/logsproxy/v1"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
@@ -56,16 +57,16 @@ func run() error {
 
 	gRPCserver := grpc.NewServer(opts...)
 
-	adminLogService := services.NewAdminLogService(filepath.Join(*logsPath, adminLogFile))
-	joinLogService := services.NewJoinLogService(filepath.Join(*logsPath, joinLogFile))
-	playerProfilesService := services.NewPlayerProfilesService(filepath.Join(*logsPath, playerProfileFile))
+	adminLogService := logs.NewAdminLogService(filepath.Join(*logsPath, adminLogFile))
+	joinLogService := logs.NewJoinLogService(filepath.Join(*logsPath, joinLogFile))
+	playerProfilesService := logs.NewPlayerProfilesService(filepath.Join(*logsPath, playerProfileFile))
 
 	v1.RegisterAdminLogServiceServer(gRPCserver, adminLogService)
 	v1.RegisterJoinLogServiceServer(gRPCserver, joinLogService)
 	v1.RegisterPlayerProfilesServiceServer(gRPCserver, playerProfilesService)
 
 	// Create and register PlayerQueryService (uses service interfaces directly)
-	playerQueryService := services.NewPlayerQueryService(
+	playerQueryService := players.NewPlayerQueryService(
 		adminLogService,
 		joinLogService,
 		playerProfilesService,

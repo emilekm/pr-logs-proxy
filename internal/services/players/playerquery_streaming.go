@@ -1,20 +1,21 @@
-package services
+package players
 
 import (
 	"context"
 	"log/slog"
 
+	"github.com/Alliance-Community/pr-logs-proxy/internal/services/logs"
 	v1 "github.com/Alliance-Community/pr-logs-proxy/logsproxy/v1"
 )
 
 // internalStreamAdapter adapts server streams to work without network calls
 type adminLogStreamAdapter struct {
-	service *AdminLogService
+	service *logs.AdminLogService
 	ch      chan *v1.AdminLogEntry
 	ctx     context.Context
 }
 
-func newAdminLogStream(ctx context.Context, service *AdminLogService) *adminLogStreamAdapter {
+func newAdminLogStream(ctx context.Context, service *logs.AdminLogService) *adminLogStreamAdapter {
 	adapter := &adminLogStreamAdapter{
 		service: service,
 		ch:      make(chan *v1.AdminLogEntry, 100),
@@ -67,12 +68,12 @@ func (s *adminLogServerStream) Context() context.Context {
 
 // Join log stream adapter
 type joinLogStreamAdapter struct {
-	service *JoinLogService
+	service *logs.JoinLogService
 	ch      chan *v1.JoinLogEntry
 	ctx     context.Context
 }
 
-func newJoinLogStream(ctx context.Context, service *JoinLogService) *joinLogStreamAdapter {
+func newJoinLogStream(ctx context.Context, service *logs.JoinLogService) *joinLogStreamAdapter {
 	adapter := &joinLogStreamAdapter{
 		service: service,
 		ch:      make(chan *v1.JoinLogEntry, 100),
@@ -123,12 +124,12 @@ func (s *joinLogServerStream) Context() context.Context {
 
 // Player profile stream adapter
 type playerProfileStreamAdapter struct {
-	service *PlayerProfilesService
+	service *logs.PlayerProfilesService
 	ch      chan *v1.PlayerProfileEntry
 	ctx     context.Context
 }
 
-func newPlayerProfileStream(ctx context.Context, service *PlayerProfilesService) *playerProfileStreamAdapter {
+func newPlayerProfileStream(ctx context.Context, service *logs.PlayerProfilesService) *playerProfileStreamAdapter {
 	adapter := &playerProfileStreamAdapter{
 		service: service,
 		ch:      make(chan *v1.PlayerProfileEntry, 100),
