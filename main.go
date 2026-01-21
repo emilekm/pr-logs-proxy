@@ -57,9 +57,24 @@ func run() error {
 
 	gRPCserver := grpc.NewServer(opts...)
 
-	adminLogService := logs.NewAdminLogService(filepath.Join(*logsPath, adminLogFile))
-	joinLogService := logs.NewJoinLogService(filepath.Join(*logsPath, joinLogFile))
-	playerProfilesService := logs.NewPlayerProfilesService(filepath.Join(*logsPath, playerProfileFile))
+	// Create log services (loads all entries into memory)
+	adminLogService, err := logs.NewAdminLogService(filepath.Join(*logsPath, adminLogFile))
+	if err != nil {
+		return fmt.Errorf("failed to create admin log service: %w", err)
+	}
+	slog.Info(fmt.Sprintf("Admin log service loaded with %d entries", adminLogService.GetEntryCount()))
+
+	joinLogService, err := logs.NewJoinLogService(filepath.Join(*logsPath, joinLogFile))
+	if err != nil {
+		return fmt.Errorf("failed to create join log service: %w", err)
+	}
+	slog.Info(fmt.Sprintf("Join log service loaded with %d entries", joinLogService.GetEntryCount()))
+
+	playerProfilesService, err := logs.NewPlayerProfilesService(filepath.Join(*logsPath, playerProfileFile))
+	if err != nil {
+		return fmt.Errorf("failed to create player profiles service: %w", err)
+	}
+	slog.Info(fmt.Sprintf("Player profiles service loaded with %d entries", playerProfilesService.GetEntryCount()))
 
 	v1.RegisterAdminLogServiceServer(gRPCserver, adminLogService)
 	v1.RegisterJoinLogServiceServer(gRPCserver, joinLogService)

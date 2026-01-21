@@ -1,9 +1,7 @@
 package logs
 
 import (
-	"bufio"
 	"context"
-	"os"
 
 	v1 "github.com/Alliance-Community/pr-logs-proxy/logsproxy/v1"
 	"github.com/emilekm/go-prbf2/logs"
@@ -17,18 +15,23 @@ type PlayerProfilesService struct {
 	logPath string
 }
 
-func NewPlayerProfilesService(logPath string) *PlayerProfilesService {
-	return &PlayerProfilesService{
-		updateService: newUpdateService(
-			logPath, logs.ParsePlayerProfileEntry,
-			func(entry *logs.PlayerProfileEntry) *v1.PlayerProfilesUpdatesResponse {
-				return &v1.PlayerProfilesUpdatesResponse{
-					Entry: playerProfileEntryToProto(entry),
-				}
-			},
-		),
-		logPath: logPath,
+func NewPlayerProfilesService(logPath string) (*PlayerProfilesService, error) {
+	updateSvc, err := newUpdateService(
+		logPath, logs.ParsePlayerProfileEntry,
+		func(entry *logs.PlayerProfileEntry) *v1.PlayerProfilesUpdatesResponse {
+			return &v1.PlayerProfilesUpdatesResponse{
+				Entry: playerProfileEntryToProto(entry),
+			}
+		},
+	)
+	if err != nil {
+		return nil, err
 	}
+
+	return &PlayerProfilesService{
+		updateService: updateSvc,
+		logPath:       logPath,
+	}, nil
 }
 
 func (s *PlayerProfilesService) PlayerProfileUpdates(req *v1.PlayerProfilesUpdatesRequest, stream v1.PlayerProfilesService_PlayerProfilesUpdatesServer) error {
@@ -36,21 +39,12 @@ func (s *PlayerProfilesService) PlayerProfileUpdates(req *v1.PlayerProfilesUpdat
 }
 
 func (s *PlayerProfilesService) PlayerProfiles(ctx context.Context, req *v1.PlayerProfilesLogsRequest) (*v1.PlayerProfilesLogsResponse, error) {
-	file, err := os.Open(s.logPath)
-	if err != nil {
-		return nil, err
-	}
-	defer file.Close()
+	// Get all entries from in-memory storage
+	allEntries := s.GetAllEntries()
 
-	entries := make([]*v1.PlayerProfileEntry, 0)
-	scanner := bufio.NewScanner(file)
-	for scanner.Scan() {
-		line := scanner.Text()
-		entry, err := logs.ParsePlayerProfileEntry(line)
-		if err != nil {
-			continue
-		}
-
+	// Convert to protobuf format
+	entries := make([]*v1.PlayerProfileEntry, 0, len(allEntries))
+	for _, entry := range allEntries {
 		entries = append(entries, playerProfileEntryToProto(entry))
 	}
 

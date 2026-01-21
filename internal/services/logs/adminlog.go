@@ -1,10 +1,7 @@
 package logs
 
 import (
-	"bufio"
 	"context"
-	"fmt"
-	"os"
 
 	v1 "github.com/Alliance-Community/pr-logs-proxy/logsproxy/v1"
 	"github.com/emilekm/go-prbf2/logs"
@@ -18,21 +15,26 @@ type AdminLogService struct {
 	logPath string
 }
 
-func NewAdminLogService(logPath string) *AdminLogService {
-	return &AdminLogService{
-		updateService: newUpdateService(
-			logPath,
-			func(line string) (*logs.AdminEntry, error) {
-				return logs.ParseAdminEntry(line, logs.DefaultAdminEntryDateFormat)
-			},
-			func(entry *logs.AdminEntry) *v1.AdminLogUpdatesResponse {
-				return &v1.AdminLogUpdatesResponse{
-					Entry: adminEntryToProto(entry),
-				}
-			},
-		),
-		logPath: logPath,
+func NewAdminLogService(logPath string) (*AdminLogService, error) {
+	updateSvc, err := newUpdateService(
+		logPath,
+		func(line string) (*logs.AdminEntry, error) {
+			return logs.ParseAdminEntry(line, logs.DefaultAdminEntryDateFormat)
+		},
+		func(entry *logs.AdminEntry) *v1.AdminLogUpdatesResponse {
+			return &v1.AdminLogUpdatesResponse{
+				Entry: adminEntryToProto(entry),
+			}
+		},
+	)
+	if err != nil {
+		return nil, err
 	}
+
+	return &AdminLogService{
+		updateService: updateSvc,
+		logPath:       logPath,
+	}, nil
 }
 
 func (s *AdminLogService) AdminLogUpdates(req *v1.AdminLogUpdatesRequest, stream v1.AdminLogService_AdminLogUpdatesServer) error {
@@ -40,21 +42,12 @@ func (s *AdminLogService) AdminLogUpdates(req *v1.AdminLogUpdatesRequest, stream
 }
 
 func (s *AdminLogService) AdminsLogs(ctx context.Context, req *v1.AdminsLogsRequest) (*v1.AdminsLogsResponse, error) {
-	file, err := os.Open(s.logPath)
-	if err != nil {
-		return nil, err
-	}
-	defer file.Close()
+	// Get all entries from in-memory storage
+	allEntries := s.GetAllEntries()
 
-	entries := make([]*v1.AdminLogEntry, 0)
-	scanner := bufio.NewScanner(file)
-	for scanner.Scan() {
-		line := scanner.Text()
-		entry, err := logs.ParseAdminEntry(line, logs.DefaultAdminEntryDateFormat)
-		if err != nil {
-			return nil, fmt.Errorf("failed to parse admin log entry %q: %w", line, err)
-		}
-
+	// Convert to protobuf format
+	entries := make([]*v1.AdminLogEntry, 0, len(allEntries))
+	for _, entry := range allEntries {
 		entries = append(entries, adminEntryToProto(entry))
 	}
 

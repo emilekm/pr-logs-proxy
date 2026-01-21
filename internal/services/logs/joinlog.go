@@ -1,10 +1,8 @@
 package logs
 
 import (
-	"bufio"
 	"context"
 	"encoding/binary"
-	"os"
 
 	v1 "github.com/Alliance-Community/pr-logs-proxy/logsproxy/v1"
 	"github.com/emilekm/go-prbf2/logs"
@@ -18,18 +16,23 @@ type JoinLogService struct {
 	logPath string
 }
 
-func NewJoinLogService(logPath string) *JoinLogService {
-	return &JoinLogService{
-		updateService: newUpdateService(
-			logPath, logs.ParseJoinEntry,
-			func(entry *logs.JoinEntry) *v1.JoinLogUpdatesResponse {
-				return &v1.JoinLogUpdatesResponse{
-					Entry: joinEntryToProto(entry),
-				}
-			},
-		),
-		logPath: logPath,
+func NewJoinLogService(logPath string) (*JoinLogService, error) {
+	updateSvc, err := newUpdateService(
+		logPath, logs.ParseJoinEntry,
+		func(entry *logs.JoinEntry) *v1.JoinLogUpdatesResponse {
+			return &v1.JoinLogUpdatesResponse{
+				Entry: joinEntryToProto(entry),
+			}
+		},
+	)
+	if err != nil {
+		return nil, err
 	}
+
+	return &JoinLogService{
+		updateService: updateSvc,
+		logPath:       logPath,
+	}, nil
 }
 
 func (s *JoinLogService) JoinLogsUpdates(req *v1.JoinLogUpdatesRequest, stream v1.JoinLogService_JoinLogUpdatesServer) error {
@@ -37,21 +40,12 @@ func (s *JoinLogService) JoinLogsUpdates(req *v1.JoinLogUpdatesRequest, stream v
 }
 
 func (s *JoinLogService) JoinLogs(ctx context.Context, req *v1.JoinLogsRequest) (*v1.JoinLogsResponse, error) {
-	file, err := os.Open(s.logPath)
-	if err != nil {
-		return nil, err
-	}
-	defer file.Close()
+	// Get all entries from in-memory storage
+	allEntries := s.GetAllEntries()
 
-	entries := make([]*v1.JoinLogEntry, 0)
-	scanner := bufio.NewScanner(file)
-	for scanner.Scan() {
-		line := scanner.Text()
-		entry, err := logs.ParseJoinEntry(line)
-		if err != nil {
-			continue
-		}
-
+	// Convert to protobuf format
+	entries := make([]*v1.JoinLogEntry, 0, len(allEntries))
+	for _, entry := range allEntries {
 		entries = append(entries, joinEntryToProto(entry))
 	}
 

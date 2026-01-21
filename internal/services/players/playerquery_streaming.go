@@ -189,17 +189,7 @@ func (s *PlayerQueryService) streamAdminLogs(ctx context.Context) {
 			return
 		}
 
-		s.coldStartMu.RLock()
-		coldStartDone := s.coldStartDone
-		s.coldStartMu.RUnlock()
-
-		if !coldStartDone {
-			s.bufferedEntries.mu.Lock()
-			s.bufferedEntries.adminLogs = append(s.bufferedEntries.adminLogs, entry)
-			s.bufferedEntries.mu.Unlock()
-		} else {
-			s.processAdminLogEntry(entry)
-		}
+		s.processAdminLogEntry(entry)
 	}
 }
 
@@ -213,17 +203,7 @@ func (s *PlayerQueryService) streamJoinLogs(ctx context.Context) {
 			return
 		}
 
-		s.coldStartMu.RLock()
-		coldStartDone := s.coldStartDone
-		s.coldStartMu.RUnlock()
-
-		if !coldStartDone {
-			s.bufferedEntries.mu.Lock()
-			s.bufferedEntries.joinLogs = append(s.bufferedEntries.joinLogs, entry)
-			s.bufferedEntries.mu.Unlock()
-		} else {
-			s.processJoinLogEntry(entry)
-		}
+		s.processJoinLogEntry(entry)
 	}
 }
 
@@ -237,16 +217,6 @@ func (s *PlayerQueryService) streamProfileUpdates(ctx context.Context) {
 			return
 		}
 
-		s.coldStartMu.RLock()
-		coldStartDone := s.coldStartDone
-		s.coldStartMu.RUnlock()
-
-		if !coldStartDone {
-			s.bufferedEntries.mu.Lock()
-			s.bufferedEntries.profileUpdates = append(s.bufferedEntries.profileUpdates, entry)
-			s.bufferedEntries.mu.Unlock()
-		} else {
-			s.processPlayerProfileEntry(entry)
-		}
+		s.processPlayerProfileEntry(entry)
 	}
 }

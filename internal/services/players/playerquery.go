@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
-	"sync"
 	"time"
 
 	"github.com/Alliance-Community/pr-logs-proxy/internal/services/logs"
@@ -24,17 +23,7 @@ type PlayerQueryService struct {
 	joinLogService        *logs.JoinLogService
 	playerProfilesService *logs.PlayerProfilesService
 
-	db              *PlayerDatabase
-	coldStartDone   bool
-	coldStartMu     sync.RWMutex
-	bufferedEntries *bufferedEntries
-}
-
-type bufferedEntries struct {
-	adminLogs      []*v1.AdminLogEntry
-	joinLogs       []*v1.JoinLogEntry
-	profileUpdates []*v1.PlayerProfileEntry
-	mu             sync.Mutex
+	db *PlayerDatabase
 }
 
 // NewPlayerQueryService creates a new PlayerQueryService
@@ -48,11 +37,6 @@ func NewPlayerQueryService(
 		joinLogService:        joinLogService,
 		playerProfilesService: playerProfilesService,
 		db:                    newPlayerDatabase(),
-		bufferedEntries: &bufferedEntries{
-			adminLogs:      make([]*v1.AdminLogEntry, 0),
-			joinLogs:       make([]*v1.JoinLogEntry, 0),
-			profileUpdates: make([]*v1.PlayerProfileEntry, 0),
-		},
 	}
 }
 
@@ -60,26 +44,23 @@ func NewPlayerQueryService(
 func (s *PlayerQueryService) Start(ctx context.Context) error {
 	slog.Info("Starting PlayerQueryService")
 
-	// Start streaming updates immediately (buffer during cold start)
-	go s.streamAdminLogs(ctx)
-	go s.streamJoinLogs(ctx)
-	go s.streamProfileUpdates(ctx)
-
-	// Perform cold start: load all existing logs
+	// Perform cold start: load all existing logs BEFORE streaming
 	if err := s.performColdStart(ctx); err != nil {
 		return fmt.Errorf("cold start failed: %w", err)
 	}
 
-	// Merge buffered entries
-	s.mergeBufferedEntries()
+	// Start streaming updates (after cold start completes)
+	go s.streamAdminLogs(ctx)
+	go s.streamJoinLogs(ctx)
+	go s.streamProfileUpdates(ctx)
 
 	slog.Info("PlayerQueryService started successfully")
 	return nil
 }
 
-// performColdStart loads all existing log data
+// performColdStart loads all existing log data from in-memory storage
 func (s *PlayerQueryService) performColdStart(ctx context.Context) error {
-	slog.Info("Performing cold start - loading existing logs")
+	slog.Info("Performing cold start - loading existing logs from memory")
 
 	// Load all join logs first (contains key player data)
 	if err := s.loadJoinLogs(ctx); err != nil {
@@ -95,10 +76,6 @@ func (s *PlayerQueryService) performColdStart(ctx context.Context) error {
 	if err := s.loadAdminLogs(ctx); err != nil {
 		return fmt.Errorf("failed to load admin logs: %w", err)
 	}
-
-	s.coldStartMu.Lock()
-	s.coldStartDone = true
-	s.coldStartMu.Unlock()
 
 	slog.Info("Cold start completed", slog.Int("players", len(s.db.players)))
 	return nil
@@ -147,34 +124,6 @@ func (s *PlayerQueryService) loadAdminLogs(ctx context.Context) error {
 
 	slog.Info("Loaded admin logs", slog.Int("entries", len(resp.Entries)))
 	return nil
-}
-
-// mergeBufferedEntries merges buffered entries into the database
-func (s *PlayerQueryService) mergeBufferedEntries() {
-	s.bufferedEntries.mu.Lock()
-	defer s.bufferedEntries.mu.Unlock()
-
-	slog.Info("Merging buffered entries",
-		slog.Int("admin_logs", len(s.bufferedEntries.adminLogs)),
-		slog.Int("join_logs", len(s.bufferedEntries.joinLogs)),
-		slog.Int("profile_updates", len(s.bufferedEntries.profileUpdates)))
-
-	for _, entry := range s.bufferedEntries.joinLogs {
-		s.processJoinLogEntry(entry)
-	}
-
-	for _, entry := range s.bufferedEntries.profileUpdates {
-		s.processPlayerProfileEntry(entry)
-	}
-
-	for _, entry := range s.bufferedEntries.adminLogs {
-		s.processAdminLogEntry(entry)
-	}
-
-	// Clear buffers
-	s.bufferedEntries.adminLogs = nil
-	s.bufferedEntries.joinLogs = nil
-	s.bufferedEntries.profileUpdates = nil
 }
 
 // Streaming methods are defined in playerquery_streaming.go
