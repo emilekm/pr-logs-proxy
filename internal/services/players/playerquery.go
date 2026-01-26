@@ -72,7 +72,7 @@ func (s *PlayerQueryService) performColdStart() error {
 		return fmt.Errorf("failed to load admin logs: %w", err)
 	}
 
-	slog.Info("Cold start completed", slog.Int("players", len(s.db.players)))
+	slog.Info("Cold start completed")
 	return nil
 }
 
