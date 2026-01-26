@@ -2,8 +2,10 @@ package players
 
 import (
 	"context"
+	"time"
 
 	v1 "github.com/Alliance-Community/pr-logs-proxy/logsproxy/v1"
+	"github.com/emilekm/go-prbf2/logs"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
@@ -24,13 +26,13 @@ func (s *PlayerQueryService) SearchPlayers(ctx context.Context, req *v1.PlayerSe
 	}
 
 	// Convert to proto
-	protoResults := make([]*v1.PlayerSearchResult, 0, len(results))
-	for _, player := range results {
-		protoResults = append(protoResults, &v1.PlayerSearchResult{
+	protoResults := make([]*v1.PlayerSearchResult, len(results))
+	for i, player := range results {
+		protoResults[i] = &v1.PlayerSearchResult{
 			KeyHash:        player.KeyHash,
 			CurrentName:    player.CurrentName,
 			AlternateNames: player.GetAllNames(),
-		})
+		}
 	}
 
 	return &v1.PlayerSearchResponse{
@@ -100,8 +102,8 @@ func (s *PlayerQueryService) buildPlayerHashInfo(keyHash string, player *PlayerR
 	for _, ipInfo := range player.IPs {
 		ips = append(ips, &v1.PlayerIP{
 			Ip:        ipInfo.IP,
-			FirstSeen: ipInfo.FirstSeen,
-			LastSeen:  ipInfo.LastSeen,
+			FirstSeen: ipInfo.FirstSeen.Unix(),
+			LastSeen:  ipInfo.LastSeen.Unix(),
 		})
 	}
 
@@ -118,22 +120,22 @@ func (s *PlayerQueryService) buildPlayerHashInfo(keyHash string, player *PlayerR
 }
 
 // buildBanStatus creates a BanStatus object from action records
-func (s *PlayerQueryService) buildBanStatus(actions []*ActionRecord) *v1.BanStatus {
-	var lastBan *ActionRecord
-	var lastBanTimestamp int64
-	var lastUnban *ActionRecord
-	var lastUnbanTimestamp int64
+func (s *PlayerQueryService) buildBanStatus(actions []*logs.AdminEntry) *v1.BanStatus {
+	var lastBan *logs.AdminEntry
+	var lastBanTimestamp time.Time
+	var lastUnban *logs.AdminEntry
+	var lastUnbanTimestamp time.Time
 
 	// Find the most recent ban and unban actions
 	for _, action := range actions {
 		if IsBanAction(action.Action) {
-			if action.Timestamp > lastBanTimestamp {
+			if action.Timestamp.After(lastBanTimestamp) {
 				lastBanTimestamp = action.Timestamp
 				lastBan = action
 			}
 		}
 		if IsUnbanAction(action.Action) {
-			if action.Timestamp > lastUnbanTimestamp {
+			if action.Timestamp.After(lastUnbanTimestamp) {
 				lastUnbanTimestamp = action.Timestamp
 				lastUnban = action
 			}
@@ -147,7 +149,7 @@ func (s *PlayerQueryService) buildBanStatus(actions []*ActionRecord) *v1.BanStat
 
 	banStatus := &v1.BanStatus{
 		Ban: &v1.AdminLogEntry{
-			Timestamp: lastBan.Timestamp,
+			Timestamp: lastBan.Timestamp.Unix(),
 			Action:    lastBan.Action,
 			Issuer:    lastBan.Issuer,
 			Target:    lastBan.Target,
@@ -156,9 +158,9 @@ func (s *PlayerQueryService) buildBanStatus(actions []*ActionRecord) *v1.BanStat
 	}
 
 	// Include unban if it exists (regardless of timestamp order)
-	if lastUnban != nil {
+	if lastUnban != nil && lastUnban.Timestamp.After(lastBan.Timestamp) {
 		banStatus.Unban = &v1.AdminLogEntry{
-			Timestamp: lastUnban.Timestamp,
+			Timestamp: lastUnban.Timestamp.Unix(),
 			Action:    lastUnban.Action,
 			Issuer:    lastUnban.Issuer,
 			Target:    lastUnban.Target,

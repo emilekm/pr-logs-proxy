@@ -35,13 +35,11 @@ func NewPlayerProfilesService(logPath string) (*PlayerProfilesService, error) {
 	}, nil
 }
 
-func (s *PlayerProfilesService) PlayerProfileUpdates(req *v1.PlayerProfilesUpdatesRequest, stream v1.PlayerProfilesService_PlayerProfilesUpdatesServer) error {
-	// Extract line number from request (defaults to 0 if not provided)
-	fromLine := req.GetLineNumber()
-	return s.startTailing(stream, fromLine)
+func (s *PlayerProfilesService) PlayerProfilesUpdates(req *v1.PlayerProfilesUpdatesRequest, stream v1.PlayerProfilesService_PlayerProfilesUpdatesServer) error {
+	return s.startTailing(stream, req.LineNumber)
 }
 
-func (s *PlayerProfilesService) PlayerProfiles(ctx context.Context, req *v1.PlayerProfilesLogsRequest) (*v1.PlayerProfilesLogsResponse, error) {
+func (s *PlayerProfilesService) PlayerProfilesLogs(ctx context.Context, req *v1.PlayerProfilesLogsRequest) (*v1.PlayerProfilesLogsResponse, error) {
 	// Get all entries from in-memory storage
 	allEntries := s.GetAllEntries()
 

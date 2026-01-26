@@ -2,9 +2,28 @@ package players
 
 import (
 	"slices"
+	"strings"
 	"sync"
 	"time"
+
+	"github.com/emilekm/go-prbf2/logs"
+	"github.com/hashicorp/go-memdb"
 )
+
+var schema = &memdb.DBSchema{
+	Tables: map[string]*memdb.TableSchema{
+		"players": {
+			Name: "players",
+			Indexes: map[string]*memdb.IndexSchema{
+				"key_hash": {
+					Name:    "key_hash",
+					Unique:  true,
+					Indexer: &memdb.StringFieldIndex{Field: "KeyHash"},
+				},
+			},
+		},
+	},
+}
 
 // PlayerRecord represents aggregated data for a single player
 type PlayerRecord struct {
@@ -12,14 +31,12 @@ type PlayerRecord struct {
 	CurrentName    string
 	AllNames       map[string]struct{} // Deduplicated names
 	IPs            map[uint32]*IPInfo
-	AccountStatus  int32
-	AccountCreated int64
-	TrustLevel     uint32
+	AccountStatus  logs.AccountStatus
+	AccountCreated time.Time
+	TrustLevel     int
 
 	// Action history
-	Actions        []*ActionRecord
-	JoinEvents     []*JoinEvent
-	ProfileUpdates []*ProfileUpdate
+	Actions []*logs.AdminEntry
 
 	mu sync.RWMutex
 }
@@ -27,39 +44,14 @@ type PlayerRecord struct {
 // IPInfo tracks information about an IP address
 type IPInfo struct {
 	IP        uint32
-	FirstSeen int64
-	LastSeen  int64
-}
-
-// ActionRecord represents an admin action
-type ActionRecord struct {
-	Timestamp int64
-	Action    string
-	Issuer    string
-	Target    string
-	Details   string
-}
-
-// JoinEvent represents a player join event
-type JoinEvent struct {
-	Timestamp  int64
-	Name       string
-	IP         uint32
-	TrustLevel uint32
-	Status     int32
-}
-
-// ProfileUpdate represents a profile change
-type ProfileUpdate struct {
-	Timestamp  int64
-	Username   string
-	TrustLevel uint32
+	FirstSeen time.Time
+	LastSeen  time.Time
 }
 
 // PlayerDatabase holds all player records
 type PlayerDatabase struct {
 	players   map[string]*PlayerRecord // key_hash -> record
-	nameIndex map[string][]string      // lowercase name -> []key_hash
+	nameIndex map[string]string        // cleaned_name -> key_hash
 	ipIndex   map[uint32][]string      // ip -> []key_hash
 	mu        sync.RWMutex
 }
@@ -67,7 +59,7 @@ type PlayerDatabase struct {
 func newPlayerDatabase() *PlayerDatabase {
 	return &PlayerDatabase{
 		players:   make(map[string]*PlayerRecord),
-		nameIndex: make(map[string][]string),
+		nameIndex: make(map[string]string),
 		ipIndex:   make(map[uint32][]string),
 	}
 }
@@ -85,7 +77,7 @@ func (db *PlayerDatabase) AddOrUpdatePlayer(keyHash string) *PlayerRecord {
 		KeyHash:  keyHash,
 		AllNames: make(map[string]struct{}),
 		IPs:      make(map[uint32]*IPInfo),
-		Actions:  make([]*ActionRecord, 0),
+		Actions:  make([]*logs.AdminEntry, 0),
 	}
 	db.players[keyHash] = player
 	return player
@@ -106,12 +98,16 @@ func (db *PlayerDatabase) SearchByName(name string) []*PlayerRecord {
 	defer db.mu.RUnlock()
 
 	results := make(map[string]*PlayerRecord)
-	lowerName := toLower(name)
+	cleanedName := cleanName(name)
 
-	// Search through name index
-	for indexedName, keyHashes := range db.nameIndex {
-		if contains(indexedName, lowerName) {
-			for _, keyHash := range keyHashes {
+	if match, ok := db.nameIndex[cleanedName]; ok {
+		if player, exists := db.players[match]; exists {
+			results[match] = player
+		}
+	} else {
+		// Search through name index
+		for indexedName, keyHash := range db.nameIndex {
+			if strings.Contains(indexedName, cleanedName) {
 				if player, exists := db.players[keyHash]; exists {
 					results[keyHash] = player
 				}
@@ -213,15 +209,9 @@ func (db *PlayerDatabase) IndexName(name, keyHash string) {
 	db.mu.Lock()
 	defer db.mu.Unlock()
 
-	lowerName := toLower(name)
-	keyHashes := db.nameIndex[lowerName]
+	cleanedName := cleanName(name)
 
-	// Check if already indexed
-	if slices.Contains(keyHashes, keyHash) {
-		return
-	}
-
-	db.nameIndex[lowerName] = append(keyHashes, keyHash)
+	db.nameIndex[cleanedName] = keyHash
 }
 
 // IndexIP adds an IP to the search index
@@ -240,15 +230,15 @@ func (db *PlayerDatabase) IndexIP(ip uint32, keyHash string) {
 }
 
 // Helper to update or add IP info
-func (p *PlayerRecord) UpdateIP(ip uint32, timestamp int64) {
+func (p *PlayerRecord) UpdateIP(ip uint32, timestamp time.Time) {
 	p.mu.Lock()
 	defer p.mu.Unlock()
 
 	if info, exists := p.IPs[ip]; exists {
-		if timestamp < info.FirstSeen {
+		if timestamp.Before(info.FirstSeen) {
 			info.FirstSeen = timestamp
 		}
-		if timestamp > info.LastSeen {
+		if timestamp.After(info.LastSeen) {
 			info.LastSeen = timestamp
 		}
 	} else {
@@ -266,7 +256,7 @@ func (p *PlayerRecord) AddName(name string) {
 	defer p.mu.Unlock()
 
 	p.AllNames[name] = struct{}{}
-	if p.CurrentName == "" || len(name) > 0 {
+	if p.CurrentName == "" {
 		p.CurrentName = name
 	}
 }
@@ -282,41 +272,19 @@ func (p *PlayerRecord) GetAllNames() []string {
 			names = append(names, name)
 		}
 	}
-	return names
+	return slices.Clone(names)
 }
 
-// Simple string helpers
-func toLower(s string) string {
-	// Simple ASCII lowercase conversion
-	result := make([]byte, len(s))
-	for i := 0; i < len(s); i++ {
-		c := s[i]
-		if c >= 'A' && c <= 'Z' {
-			result[i] = c + 32
-		} else {
-			result[i] = c
-		}
+func cleanName(name string) string {
+	split := strings.Split(name, " ")
+	username := name
+	if len(split) == 2 {
+		username = split[1]
 	}
-	return string(result)
-}
 
-func contains(haystack, needle string) bool {
-	if len(needle) > len(haystack) {
-		return false
+	if len(split) == 3 {
+		username = split[2]
 	}
-	for i := 0; i <= len(haystack)-len(needle); i++ {
-		if haystack[i:i+len(needle)] == needle {
-			return true
-		}
-	}
-	return false
-}
 
-// ParseTimeBanDuration extracts duration from TIMEBAN details
-// TODO: Implement duration parsing logic
-func ParseTimeBanDuration(details string) time.Duration {
-	// TODO: Parse ban duration from details field
-	// Expected formats: "7 days", "24 hours", "1 week", etc.
-	// This is left as a placeholder for the user to implement
-	return 0
+	return strings.TrimSpace(username)
 }

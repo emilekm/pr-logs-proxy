@@ -36,10 +36,8 @@ func NewJoinLogService(logPath string) (*JoinLogService, error) {
 	}, nil
 }
 
-func (s *JoinLogService) JoinLogsUpdates(req *v1.JoinLogUpdatesRequest, stream v1.JoinLogService_JoinLogUpdatesServer) error {
-	// Extract line number from request (defaults to 0 if not provided)
-	fromLine := req.GetLineNumber()
-	return s.startTailing(stream, fromLine)
+func (s *JoinLogService) JoinLogUpdates(req *v1.JoinLogUpdatesRequest, stream v1.JoinLogService_JoinLogUpdatesServer) error {
+	return s.startTailing(stream, req.LineNumber)
 }
 
 func (s *JoinLogService) JoinLogs(ctx context.Context, req *v1.JoinLogsRequest) (*v1.JoinLogsResponse, error) {

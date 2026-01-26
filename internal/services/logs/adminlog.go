@@ -40,8 +40,7 @@ func NewAdminLogService(logPath string) (*AdminLogService, error) {
 
 func (s *AdminLogService) AdminLogUpdates(req *v1.AdminLogUpdatesRequest, stream v1.AdminLogService_AdminLogUpdatesServer) error {
 	// Extract line number from request (defaults to 0 if not provided)
-	fromLine := req.GetLineNumber()
-	return s.startTailing(stream, fromLine)
+	return s.startTailing(stream, req.LineNumber)
 }
 
 func (s *AdminLogService) AdminsLogs(ctx context.Context, req *v1.AdminsLogsRequest) (*v1.AdminsLogsResponse, error) {

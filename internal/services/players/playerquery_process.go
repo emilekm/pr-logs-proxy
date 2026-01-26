@@ -1,14 +1,15 @@
 package players
 
 import (
+	"encoding/binary"
 	"strings"
 
-	v1 "github.com/Alliance-Community/pr-logs-proxy/logsproxy/v1"
+	"github.com/emilekm/go-prbf2/logs"
 )
 
 // processJoinLogEntry processes a join log entry and updates the database
-func (s *PlayerQueryService) processJoinLogEntry(entry *v1.JoinLogEntry) {
-	if entry == nil || entry.KeyHash == "" {
+func (s *PlayerQueryService) processJoinLogEntry(entry *logs.JoinEntry) {
+	if entry.KeyHash == "" {
 		return
 	}
 
@@ -21,80 +22,44 @@ func (s *PlayerQueryService) processJoinLogEntry(entry *v1.JoinLogEntry) {
 	}
 
 	// Update IP
-	if entry.Ipv4 != 0 {
-		player.UpdateIP(entry.Ipv4, entry.Timestamp)
-		s.db.IndexIP(entry.Ipv4, entry.KeyHash)
-	}
+	ip := binary.BigEndian.Uint32(entry.IP)
+	player.UpdateIP(ip, entry.Timestamp)
+	s.db.IndexIP(ip, entry.KeyHash)
 
 	// Update account info
 	player.mu.Lock()
-	if entry.CreatedAt > 0 {
-		player.AccountCreated = entry.CreatedAt
-	}
-	player.AccountStatus = int32(entry.Status)
+	player.AccountCreated = entry.CreatedAt
+	player.AccountStatus = entry.Status
 	player.TrustLevel = entry.TrustLevel
-
-	// Add join event
-	player.JoinEvents = append(player.JoinEvents, &JoinEvent{
-		Timestamp:  entry.Timestamp,
-		Name:       entry.Name,
-		IP:         entry.Ipv4,
-		TrustLevel: entry.TrustLevel,
-		Status:     int32(entry.Status),
-	})
 	player.mu.Unlock()
 }
 
 // processPlayerProfileEntry processes a player profile entry
-func (s *PlayerQueryService) processPlayerProfileEntry(entry *v1.PlayerProfileEntry) {
-	if entry == nil || entry.KeyHash == "" {
-		return
-	}
-
+func (s *PlayerQueryService) processPlayerProfileEntry(entry *logs.PlayerProfileEntry) {
 	player := s.db.AddOrUpdatePlayer(entry.KeyHash)
 
-	// Update current name
-	if entry.Username != "" {
-		player.AddName(entry.Username)
-		s.db.IndexName(entry.Username, entry.KeyHash)
+	player.AddName(entry.Username)
+	s.db.IndexName(entry.Username, entry.KeyHash)
 
-		player.mu.Lock()
-		player.CurrentName = entry.Username
-		player.TrustLevel = entry.TrustLevel
-		player.mu.Unlock()
-	}
-
-	// Add profile update
 	player.mu.Lock()
-	player.ProfileUpdates = append(player.ProfileUpdates, &ProfileUpdate{
-		Timestamp:  entry.Timestamp,
-		Username:   entry.Username,
-		TrustLevel: entry.TrustLevel,
-	})
+	player.CurrentName = entry.Username
 	player.mu.Unlock()
 }
 
 // processAdminLogEntry processes an admin log entry
-func (s *PlayerQueryService) processAdminLogEntry(entry *v1.AdminLogEntry) {
-	if entry == nil {
+func (s *PlayerQueryService) processAdminLogEntry(entry *logs.AdminEntry) {
+	if entry.Action == "REPORT" {
+		// Ignore report actions
 		return
 	}
 
-	action := &ActionRecord{
-		Timestamp: entry.Timestamp,
-		Action:    entry.Action,
-		Issuer:    entry.Issuer,
-		Target:    entry.Target,
-		Details:   entry.Details,
-	}
-
 	// Try to extract key_hash from target
-	targetKeyHash := ExtractKeyHashFromTarget(entry.Target)
+	targetKeyHash := extractKeyHashFromTarget(entry.Target)
 	if targetKeyHash != "" {
 		// Action was performed ON this player
 		player := s.db.AddOrUpdatePlayer(targetKeyHash)
 		player.mu.Lock()
-		player.Actions = append(player.Actions, action)
+		player.Actions = append(player.Actions, entry)
 		player.mu.Unlock()
 	}
 
@@ -108,8 +73,18 @@ func (s *PlayerQueryService) processAdminLogEntry(entry *v1.AdminLogEntry) {
 			// Exact match found
 			player := players[0]
 			player.mu.Lock()
-			player.Actions = append(player.Actions, action)
+			player.Actions = append(player.Actions, entry)
 			player.mu.Unlock()
 		}
 	}
+}
+
+func extractKeyHashFromTarget(target string) string {
+	for part := range strings.SplitSeq(target, " ") {
+		if len(part) == 32 { // Key hash length
+			return part
+		}
+	}
+
+	return ""
 }

@@ -24,19 +24,17 @@ type updateService[
 	T logs.AdminEntry | logs.JoinEntry | logs.PlayerProfileEntry,
 	V v1.AdminLogUpdatesResponse | v1.JoinLogUpdatesResponse | v1.PlayerProfilesUpdatesResponse,
 ] struct {
-	logParser     func(string) (*T, error)
-	entryToProto  func(*T, uint64) *V
-	updateStreams []UpdateService_UpdateLogsServer[V]
-	logPath       string
-	mutex         sync.RWMutex
+	logParser      func(string) (*T, error)
+	entryToProto   func(*T, uint64) *V
+	updateStreams  []UpdateService_UpdateLogsServer[V]
+	updateChannels []chan *T
+	logPath        string
+	streamsMutex   sync.RWMutex
 
 	// In-memory storage
-	entries   []*T
-	entriesMu sync.RWMutex
-
-	// Dual counter tracking
-	totalLinesRead      uint64 // Total lines read from file (including unparseable)
-	parsedEntriesCount  uint64 // Number of successfully parsed entries
+	entries      []*T
+	totalEntries uint64
+	entriesMu    sync.RWMutex
 }
 
 func newUpdateService[
@@ -44,11 +42,12 @@ func newUpdateService[
 	V v1.AdminLogUpdatesResponse | v1.JoinLogUpdatesResponse | v1.PlayerProfilesUpdatesResponse,
 ](logPath string, parser func(string) (*T, error), entryToProto func(*T, uint64) *V) (*updateService[T, V], error) {
 	s := &updateService[T, V]{
-		logParser:     parser,
-		entryToProto:  entryToProto,
-		updateStreams: make([]UpdateService_UpdateLogsServer[V], 0),
-		logPath:       logPath,
-		entries:       make([]*T, 0),
+		logParser:      parser,
+		entryToProto:   entryToProto,
+		updateStreams:  make([]UpdateService_UpdateLogsServer[V], 0),
+		updateChannels: make([]chan *T, 0),
+		logPath:        logPath,
+		entries:        make([]*T, 0),
 	}
 
 	// Load all entries from file into memory
@@ -61,7 +60,7 @@ func newUpdateService[
 		return nil, fmt.Errorf("failed to start tailer for %s: %w", logPath, err)
 	}
 
-	log.Printf("Loaded %d parsed entries from %d total lines in %s", s.parsedEntriesCount, s.totalLinesRead, logPath)
+	log.Printf("Loaded %d parsed entries in %s", s.totalEntries, logPath)
 
 	return s, nil
 }
@@ -77,24 +76,22 @@ func (s *updateService[T, V]) loadAllEntries() error {
 	scanner := bufio.NewScanner(file)
 
 	for scanner.Scan() {
-		s.totalLinesRead++
 		line := scanner.Text()
 
 		entry, err := s.logParser(line)
 		if err != nil {
-			// Skip unparseable lines but still count total lines
-			continue
+			entry = new(T)
 		}
 
 		s.entries = append(s.entries, entry)
-		s.parsedEntriesCount++
+		s.totalEntries++
 	}
 
 	if err := scanner.Err(); err != nil {
 		return fmt.Errorf("error reading log file: %w", err)
 	}
 
-	log.Printf("Parsed %d/%d lines from %s", s.parsedEntriesCount, s.totalLinesRead, s.logPath)
+	log.Printf("Parsed %d lines from %s", s.totalEntries, s.logPath)
 
 	return nil
 }
@@ -111,30 +108,45 @@ func (s *updateService[T, V]) GetAllEntries() []*T {
 }
 
 // GetEntryCount returns the number of entries currently in memory
-func (s *updateService[T, V]) GetEntryCount() int {
+func (s *updateService[T, V]) GetEntryCount() uint64 {
 	s.entriesMu.RLock()
 	defer s.entriesMu.RUnlock()
-	return len(s.entries)
+	return s.totalEntries
 }
 
-func (s *updateService[T, V]) startTailing(sub UpdateService_UpdateLogsServer[V], fromParsedLine uint64) error {
-	// First, send buffered entries from the requested line
+func (s *updateService[T, V]) Updates() chan *T {
+	ch := make(chan *T, 10)
+
+	s.streamsMutex.Lock()
+	s.updateChannels = append(s.updateChannels, ch)
+	s.streamsMutex.Unlock()
+
+	return ch
+}
+
+func (s *updateService[T, V]) startTailing(sub UpdateService_UpdateLogsServer[V], fromParsedLine *uint64) error {
+	// Register for live updates
+	s.streamsMutex.Lock()
+	s.updateStreams = append(s.updateStreams, sub)
+	s.streamsMutex.Unlock()
+
+	// Send buffered entries from the requested line
 	s.entriesMu.RLock()
 	var bufferedEntries []*T
-	startingLineNum := fromParsedLine
 
-	if fromParsedLine > 0 && fromParsedLine <= s.parsedEntriesCount {
-		// Client wants to resume from a specific line (1-based)
-		// Send entries starting from fromParsedLine (index fromParsedLine-1)
-		bufferedEntries = s.entries[fromParsedLine-1:]
-		startingLineNum = fromParsedLine
-	} else if fromParsedLine == 0 {
-		// Client wants all entries from the beginning
-		bufferedEntries = s.entries
-		startingLineNum = 1
+	startingLineNum := uint64(1)
+
+	if fromParsedLine != nil {
+		// Adjust for 1-based line numbers in requests
+		if *fromParsedLine > 0 {
+			startingLineNum = *fromParsedLine
+		}
+
+		currentParsedLine := s.totalEntries
+		if startingLineNum < currentParsedLine {
+			bufferedEntries = s.entries[startingLineNum:currentParsedLine]
+		}
 	}
-	// If fromParsedLine > parsedEntriesCount, bufferedEntries remains nil (no buffered entries to send)
-
 	s.entriesMu.RUnlock()
 
 	// Send buffered entries
@@ -144,11 +156,6 @@ func (s *updateService[T, V]) startTailing(sub UpdateService_UpdateLogsServer[V]
 			return err
 		}
 	}
-
-	// Now register for live updates
-	s.mutex.Lock()
-	s.updateStreams = append(s.updateStreams, sub)
-	s.mutex.Unlock()
 
 	<-sub.Context().Done()
 
@@ -160,7 +167,7 @@ func (s *updateService[T, V]) startTailer() error {
 	tailer, err := tail.TailFile(s.logPath, tail.Config{
 		Follow:        true,
 		CompleteLines: true,
-		Location:      &tail.SeekInfo{Offset: int64(s.totalLinesRead), Whence: 0}, // Start at end of file
+		Location:      &tail.SeekInfo{Offset: int64(s.totalEntries), Whence: 0}, // Start at end of file
 	})
 	if err != nil {
 		return err
@@ -169,44 +176,44 @@ func (s *updateService[T, V]) startTailer() error {
 	go func() {
 		defer tailer.Stop()
 		for line := range tailer.Lines {
-			// Always increment total lines read
-			s.entriesMu.Lock()
-			s.totalLinesRead++
-			s.entriesMu.Unlock()
-
 			entry, err := s.logParser(line.Text)
 			if err != nil {
-				// Skip unparseable lines but continue tracking total lines
-				continue
+				entry = new(T)
 			}
 
 			// Append new entry to in-memory storage and increment parsed count
 			s.entriesMu.Lock()
 			s.entries = append(s.entries, entry)
-			s.parsedEntriesCount++
-			currentParsedLine := s.parsedEntriesCount
+			s.totalEntries++
+			currentLineNum := s.totalEntries
 			s.entriesMu.Unlock()
 
-			resp := s.entryToProto(entry, currentParsedLine)
+			resp := s.entryToProto(entry, currentLineNum)
+
+			s.streamsMutex.RLock()
+			if len(s.updateStreams) == 0 {
+				s.streamsMutex.RUnlock()
+				continue
+			}
 
 			toRemove := make([]int, 0)
-			s.mutex.RLock()
 			for i, sub := range s.updateStreams {
 				err = sub.Send(resp)
 				if err != nil {
 					toRemove = append(toRemove, i)
 				}
 			}
-			s.mutex.RUnlock()
+			s.streamsMutex.RUnlock()
 
 			// Remove failed streams in reverse order to maintain correct indices
-			s.mutex.Lock()
-			for i := len(toRemove) - 1; i >= 0; i-- {
-				idx := toRemove[i]
-				s.updateStreams = append(s.updateStreams[:idx], s.updateStreams[idx+1:]...)
+			if len(toRemove) > 0 {
+				s.streamsMutex.Lock()
+				for i := len(toRemove) - 1; i >= 0; i-- {
+					idx := toRemove[i]
+					s.updateStreams = append(s.updateStreams[:idx], s.updateStreams[idx+1:]...)
+				}
+				s.streamsMutex.Unlock()
 			}
-			s.mutex.Unlock()
-
 		}
 	}()
 
