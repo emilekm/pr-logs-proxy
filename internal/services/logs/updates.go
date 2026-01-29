@@ -1,8 +1,8 @@
 package logs
 
 import (
-	"bufio"
 	"fmt"
+	"io"
 	"log"
 	"os"
 	"sync"
@@ -34,6 +34,7 @@ type updateService[
 	// In-memory storage
 	entries      []*T
 	totalEntries uint64
+	location     int64
 	entriesMu    sync.RWMutex
 }
 
@@ -50,11 +51,6 @@ func newUpdateService[
 		entries:        make([]*T, 0),
 	}
 
-	// Load all entries from file into memory
-	if err := s.loadAllEntries(); err != nil {
-		return nil, fmt.Errorf("failed to load entries from %s: %w", logPath, err)
-	}
-
 	// Start tailing the log file for new entries
 	if err := s.startTailer(); err != nil {
 		return nil, fmt.Errorf("failed to start tailer for %s: %w", logPath, err)
@@ -63,37 +59,6 @@ func newUpdateService[
 	log.Printf("Loaded %d parsed entries in %s", s.totalEntries, logPath)
 
 	return s, nil
-}
-
-// loadAllEntries reads the entire log file and parses all entries into memory
-func (s *updateService[T, V]) loadAllEntries() error {
-	file, err := os.Open(s.logPath)
-	if err != nil {
-		return fmt.Errorf("failed to open log file: %w", err)
-	}
-	defer file.Close()
-
-	scanner := bufio.NewScanner(file)
-
-	for scanner.Scan() {
-		line := scanner.Text()
-
-		entry, err := s.logParser(line)
-		if err != nil {
-			entry = new(T)
-		}
-
-		s.entries = append(s.entries, entry)
-		s.totalEntries++
-	}
-
-	if err := scanner.Err(); err != nil {
-		return fmt.Errorf("error reading log file: %w", err)
-	}
-
-	log.Printf("Parsed %d lines from %s", s.totalEntries, s.logPath)
-
-	return nil
 }
 
 // GetAllEntries returns a copy of all entries in memory
@@ -163,11 +128,23 @@ func (s *updateService[T, V]) startTailing(sub UpdateService_UpdateLogsServer[V]
 }
 
 func (s *updateService[T, V]) startTailer() error {
-	// Start tailing from the line after the last loaded line
+	waitCh := make(chan struct{})
+	initial := true
+
+	file, err := os.Open(s.logPath)
+	if err != nil {
+		return fmt.Errorf("failed to open log file: %w", err)
+	}
+	defer file.Close()
+
+	currentEnd, err := file.Seek(0, io.SeekEnd)
+	if err != nil {
+		return fmt.Errorf("failed to seek to end of log file: %w", err)
+	}
+
 	tailer, err := tail.TailFile(s.logPath, tail.Config{
 		Follow:        true,
 		CompleteLines: true,
-		Location:      &tail.SeekInfo{Offset: int64(s.totalEntries), Whence: 0}, // Start at end of file
 	})
 	if err != nil {
 		return err
@@ -187,6 +164,11 @@ func (s *updateService[T, V]) startTailer() error {
 			s.totalEntries++
 			currentLineNum := s.totalEntries
 			s.entriesMu.Unlock()
+
+			if initial && line.SeekInfo.Offset >= currentEnd {
+				initial = false
+				waitCh <- struct{}{}
+			}
 
 			resp := s.entryToProto(entry, currentLineNum)
 
@@ -216,6 +198,8 @@ func (s *updateService[T, V]) startTailer() error {
 			}
 		}
 	}()
+
+	<-waitCh
 
 	return nil
 }
