@@ -5,6 +5,7 @@ go 1.25.5
 require (
 	github.com/emilekm/go-prbf2 v0.0.0-20260113214028-f53e5973633a
 	github.com/nxadm/tail v1.4.11
+	github.com/zolstein/sync-map v0.1.0
 	google.golang.org/grpc v1.78.0
 	google.golang.org/protobuf v1.36.11
 )

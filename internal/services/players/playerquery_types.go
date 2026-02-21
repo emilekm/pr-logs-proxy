@@ -9,115 +9,140 @@ import (
 
 	v1 "github.com/Alliance-Community/pr-logs-proxy/logsproxy/v1"
 	"github.com/emilekm/go-prbf2/logs"
+	syncmap "github.com/zolstein/sync-map"
 )
+
+type syncSlice[T any] struct {
+	mu    sync.Mutex
+	slice []T
+}
+
+func (s *syncSlice[T]) Append(item T) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	s.slice = append(s.slice, item)
+}
+
+func (s *syncSlice[T]) Range(f func(item T) bool) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	for _, item := range s.slice {
+		if !f(item) {
+			break
+		}
+	}
+}
+
+func (s *syncSlice[T]) AppendTo(items []T) []T {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	return append(items, s.slice...)
+}
+
+type simpleSyncMap[K comparable, V any] struct {
+	sync.RWMutex
+	M map[K]V
+}
+
+func newSimpleSyncMap[K comparable, V any]() *simpleSyncMap[K, V] {
+	return &simpleSyncMap[K, V]{M: make(map[K]V)}
+}
 
 // PlayerDatabase holds all player records
 type PlayerDatabase struct {
-	profiles              map[string][]*logs.PlayerProfileEntry // key_hash -> profile
-	joins                 map[string][]*logs.JoinEntry          // key_hash -> join
-	actionsIssued         map[string][]*logs.AdminEntry         // username -> actions
-	actionsTargeted       map[string][]*logs.AdminEntry         // username -> actions
-	actionsTargetedByHash map[string][]*logs.AdminEntry         // key_hash -> actions
+	// profiles              *syncmap.Map[string, []*logs.PlayerProfileEntry] // key_hash -> profile (concurrent)
+	joins                 *syncmap.Map[string, *syncSlice[*logs.JoinEntry]]  // key_hash -> join (concurrent)
+	actionsIssued         *syncmap.Map[string, *syncSlice[*logs.AdminEntry]] // username -> actions (concurrent)
+	actionsTargeted       *syncmap.Map[string, *syncSlice[*logs.AdminEntry]] // username -> actions (concurrent)
+	actionsTargetedByHash *syncmap.Map[string, *syncSlice[*logs.AdminEntry]] // key_hash -> actions (concurrent)
 
-	hashToUsernames map[string]map[string]struct{} // key_hash -> set of connected usernames
-	usernamesToHash map[string]string              // username -> key_hash
-	ipToHashes      map[uint32]map[string]struct{} // ip -> set of key_hashes
-	hashToIPs       map[string]map[uint32]struct{} // key_hash -> set of ips
-
-	mu sync.RWMutex
+	usernamesToHash *syncmap.Map[string, string]                           // username -> key_hash (concurrent)
+	hashToUsernames *syncmap.Map[string, *simpleSyncMap[string, struct{}]] // key_hash -> set of connected usernames (concurrent)
+	ipToHashes      *syncmap.Map[uint32, *simpleSyncMap[string, struct{}]] // ip -> set of key_hashes (concurrent)
+	hashToIPs       *syncmap.Map[string, *simpleSyncMap[uint32, struct{}]] // key_hash -> set of ips (concurrent)
 }
 
 func newPlayerDatabase() *PlayerDatabase {
 	return &PlayerDatabase{
-		profiles:              make(map[string][]*logs.PlayerProfileEntry),
-		joins:                 make(map[string][]*logs.JoinEntry),
-		actionsIssued:         make(map[string][]*logs.AdminEntry),
-		actionsTargeted:       make(map[string][]*logs.AdminEntry),
-		actionsTargetedByHash: make(map[string][]*logs.AdminEntry),
-		hashToUsernames:       make(map[string]map[string]struct{}),
-		usernamesToHash:       make(map[string]string),
-		ipToHashes:            make(map[uint32]map[string]struct{}),
-		hashToIPs:             make(map[string]map[uint32]struct{}),
+		// profiles: new(syncmap.Map[string, []*logs.PlayerProfileEntry]),
+		joins: new(syncmap.Map[string, *syncSlice[*logs.JoinEntry]]),
+
+		actionsIssued:         new(syncmap.Map[string, *syncSlice[*logs.AdminEntry]]),
+		actionsTargeted:       new(syncmap.Map[string, *syncSlice[*logs.AdminEntry]]),
+		actionsTargetedByHash: new(syncmap.Map[string, *syncSlice[*logs.AdminEntry]]),
+
+		usernamesToHash: new(syncmap.Map[string, string]),
+		hashToUsernames: new(syncmap.Map[string, *simpleSyncMap[string, struct{}]]),
+		ipToHashes:      new(syncmap.Map[uint32, *simpleSyncMap[string, struct{}]]),
+		hashToIPs:       new(syncmap.Map[string, *simpleSyncMap[uint32, struct{}]]),
 	}
 }
 
 func (db *PlayerDatabase) AddProfileEntry(entry *logs.PlayerProfileEntry) {
-	db.mu.Lock()
-	defer db.mu.Unlock()
+	// entries, _ := db.profiles.LoadOrStore(entry.KeyHash, []*logs.PlayerProfileEntry{})
+	// entries = append(entries, entry)
 
-	if _, exists := db.profiles[entry.KeyHash]; !exists {
-		db.profiles[entry.KeyHash] = make([]*logs.PlayerProfileEntry, 0)
-	}
-	db.profiles[entry.KeyHash] = append(db.profiles[entry.KeyHash], entry)
+	db.usernamesToHash.Store(entry.Username, entry.KeyHash)
 
-	db.usernamesToHash[entry.Username] = entry.KeyHash
-	if _, exists := db.hashToUsernames[entry.KeyHash]; !exists {
-		db.hashToUsernames[entry.KeyHash] = make(map[string]struct{})
-	}
-	db.hashToUsernames[entry.KeyHash][entry.Username] = struct{}{}
+	names, _ := db.hashToUsernames.LoadOrStore(entry.KeyHash, newSimpleSyncMap[string, struct{}]())
+	names.M[entry.Username] = struct{}{}
 }
 
 func (db *PlayerDatabase) AddJoinEntry(entry *logs.JoinEntry) {
-	db.mu.Lock()
-	defer db.mu.Unlock()
-
-	db.joins[entry.KeyHash] = append(db.joins[entry.KeyHash], entry)
+	joins, _ := db.joins.LoadOrStore(entry.KeyHash, &syncSlice[*logs.JoinEntry]{})
+	joins.Append(entry)
 
 	ip := ipFromNetIP(entry.IP)
-	if _, exists := db.ipToHashes[ip]; !exists {
-		db.ipToHashes[ip] = make(map[string]struct{})
-	}
-	db.ipToHashes[ip][entry.KeyHash] = struct{}{}
 
-	if _, exists := db.hashToIPs[entry.KeyHash]; !exists {
-		db.hashToIPs[entry.KeyHash] = make(map[uint32]struct{})
-	}
-	db.hashToIPs[entry.KeyHash][ip] = struct{}{}
+	hashes, _ := db.ipToHashes.LoadOrStore(ip, newSimpleSyncMap[string, struct{}]())
+	hashes.Lock()
+	hashes.M[entry.KeyHash] = struct{}{}
+	hashes.Unlock()
+
+	ips, _ := db.hashToIPs.LoadOrStore(entry.KeyHash, newSimpleSyncMap[uint32, struct{}]())
+	ips.Lock()
+	ips.M[ip] = struct{}{}
+	ips.Unlock()
 }
 
 func (db *PlayerDatabase) AddAdminEntry(entry *logs.AdminEntry) {
-	db.mu.Lock()
-	defer db.mu.Unlock()
-
 	// Index by issuer username
 	issuer := cleanName(entry.Issuer)
-	db.actionsIssued[issuer] = append(db.actionsIssued[issuer], entry)
+	issued, _ := db.actionsIssued.LoadOrStore(issuer, &syncSlice[*logs.AdminEntry]{})
+	issued.Append(entry)
 
 	keyHash := extractKeyHashFromTarget(entry.Target)
 	if keyHash != "" {
 		// Index by target key_hash
-		db.actionsTargetedByHash[keyHash] = append(db.actionsTargetedByHash[keyHash], entry)
+		targetedByHash, _ := db.actionsTargetedByHash.LoadOrStore(keyHash, &syncSlice[*logs.AdminEntry]{})
+		targetedByHash.Append(entry)
 	} else if entry.Target != "" {
 		// Index by target username
 		target := cleanName(entry.Target)
-		db.actionsTargeted[target] = append(db.actionsTargeted[target], entry)
+		targeted, _ := db.actionsTargeted.LoadOrStore(target, &syncSlice[*logs.AdminEntry]{})
+		targeted.Append(entry)
 	}
 }
 
 // GetKeyHashByName looks up a keyHash by exact name match
 func (db *PlayerDatabase) GetKeyHashByName(name string) (string, bool) {
-	db.mu.RLock()
-	defer db.mu.RUnlock()
-
-	cleanedName := cleanName(name)
-	keyHash, exists := db.usernamesToHash[cleanedName]
-	return keyHash, exists
+	return db.usernamesToHash.Load(cleanName(name))
 }
 
 // SearchKeyHashesByName returns keyHashes matching substring search
 func (db *PlayerDatabase) SearchKeyHashesByName(name string) []string {
-	db.mu.RLock()
-	defer db.mu.RUnlock()
-
 	results := make(map[string]struct{})
 	cleanedName := cleanName(name)
 
-	// Search through name index
-	for indexedName, keyHash := range db.usernamesToHash {
+	db.usernamesToHash.Range(func(indexedName string, keyHash string) bool {
 		if strings.Contains(indexedName, cleanedName) {
 			results[keyHash] = struct{}{}
 		}
-	}
+		if strings.Contains(strings.ToLower(indexedName), strings.ToLower(cleanedName)) {
+			results[keyHash] = struct{}{}
+		}
+		return true
+	})
 
 	// Convert map to slice
 	list := make([]string, 0, len(results))
@@ -130,14 +155,14 @@ func (db *PlayerDatabase) SearchKeyHashesByName(name string) []string {
 
 // GetNames aggregates unique names from profile entries
 func (db *PlayerDatabase) GetNames(keyHash string) []string {
-	db.mu.RLock()
-	defer db.mu.RUnlock()
-
 	nameMap := make(map[string]struct{})
 
-	for _, entry := range db.joins[keyHash] {
+	joins, _ := db.joins.Load(keyHash)
+
+	joins.Range(func(entry *logs.JoinEntry) bool {
 		nameMap[entry.Name] = struct{}{}
-	}
+		return true
+	})
 
 	// Convert to slice
 	names := make([]string, 0, len(nameMap))
@@ -150,14 +175,11 @@ func (db *PlayerDatabase) GetNames(keyHash string) []string {
 
 // GetIPs aggregates IPs from join entries with FirstSeen/LastSeen
 func (db *PlayerDatabase) GetIPs(keyHash string) []*v1.PlayerIP {
-	db.mu.RLock()
-	defer db.mu.RUnlock()
-
 	ipMap := make(map[uint32]*v1.PlayerIP)
 
 	// Aggregate from joins
-	if joins, exists := db.joins[keyHash]; exists {
-		for _, entry := range joins {
+	if joins, exists := db.joins.Load(keyHash); exists {
+		joins.Range(func(entry *logs.JoinEntry) bool {
 			ip := ipFromNetIP(entry.IP)
 			if existing, found := ipMap[ip]; found {
 				// Update FirstSeen and LastSeen
@@ -174,7 +196,8 @@ func (db *PlayerDatabase) GetIPs(keyHash string) []*v1.PlayerIP {
 					LastSeen:  entry.Timestamp.Unix(),
 				}
 			}
-		}
+			return true
+		})
 	}
 
 	// Convert to slice
@@ -188,26 +211,24 @@ func (db *PlayerDatabase) GetIPs(keyHash string) []*v1.PlayerIP {
 
 // GetActions returns admin actions targeted at this keyHash
 func (db *PlayerDatabase) GetActions(keyHash string) []*logs.AdminEntry {
-	db.mu.RLock()
-
 	actions := make([]*logs.AdminEntry, 0)
 
-	if actions, exists := db.actionsTargetedByHash[keyHash]; exists {
-		actions = append(actions, actions...)
+	if targetedByHash, exists := db.actionsTargetedByHash.Load(keyHash); exists {
+		targetedByHash.AppendTo(actions)
 	}
 
-	if names, exists := db.hashToUsernames[keyHash]; exists {
-		for name := range names {
-			if userActions, found := db.actionsTargeted[name]; found {
-				actions = append(actions, userActions...)
+	if names, exists := db.hashToUsernames.Load(keyHash); exists {
+		names.RLock()
+		for name := range names.M {
+			if userActions, found := db.actionsTargeted.Load(name); found {
+				userActions.AppendTo(actions)
 			}
-			if issuerActions, found := db.actionsIssued[name]; found {
-				actions = append(actions, issuerActions...)
+			if issuerActions, found := db.actionsIssued.Load(name); found {
+				issuerActions.AppendTo(actions)
 			}
 		}
+		names.RUnlock()
 	}
-
-	db.mu.RUnlock()
 
 	sort.Slice(actions, func(i, j int) bool {
 		return actions[i].Timestamp.Before(actions[j].Timestamp)
@@ -229,11 +250,8 @@ type ConnectionInfo struct {
 // or through a chain of IP-sharing relationships.
 // Returns a slice of ConnectionInfo containing details about each connection.
 func (db *PlayerDatabase) GetConnectedAccounts(keyHash string) []*ConnectionInfo {
-	db.mu.RLock()
-	defer db.mu.RUnlock()
-
 	// Check if keyHash exists
-	if _, ok := db.hashToUsernames[keyHash]; !ok {
+	if _, ok := db.hashToUsernames.Load(keyHash); !ok {
 		return nil
 	}
 
@@ -254,32 +272,42 @@ func (db *PlayerDatabase) GetConnectedAccounts(keyHash string) []*ConnectionInfo
 		queue = queue[1:]
 
 		// For each IP this player has used
-		for ip := range db.hashToIPs[current.keyHash] {
-			// Find all other players who used this IP
-			if keyHashes, exists := db.ipToHashes[ip]; exists {
-				for otherKeyHash := range keyHashes {
-					// Skip if it's the original keyHash or already visited
-					if otherKeyHash == keyHash || visited[otherKeyHash] {
-						continue
-					}
-
-					// Mark as visited and record connection info
-					visited[otherKeyHash] = true
-					connections[otherKeyHash] = &ConnectionInfo{
-						KeyHash:      otherKeyHash,
-						ViaKeyHash:   current.keyHash,
-						ViaIP:        ip,
-						DistanceHops: current.distance + 1,
-					}
-
-					// Add to queue to explore its IPs
-					queue = append(queue, queueItem{
-						keyHash:  otherKeyHash,
-						distance: current.distance + 1,
-					})
-				}
-			}
+		ips, exists := db.hashToIPs.Load(current.keyHash)
+		if !exists {
+			continue
 		}
+		ips.RLock()
+		for ip := range ips.M {
+			// Find all other players who used this IP
+			hashes, exists := db.ipToHashes.Load(ip)
+			if !exists {
+				continue
+			}
+			hashes.RLock()
+			for otherKeyHash := range hashes.M {
+				// Skip if it's the original keyHash or already visited
+				if otherKeyHash == keyHash || visited[otherKeyHash] {
+					continue
+				}
+
+				// Mark as visited and record connection info
+				visited[otherKeyHash] = true
+				connections[otherKeyHash] = &ConnectionInfo{
+					KeyHash:      otherKeyHash,
+					ViaKeyHash:   current.keyHash,
+					ViaIP:        ip,
+					DistanceHops: current.distance + 1,
+				}
+
+				// Add to queue to explore its IPs
+				queue = append(queue, queueItem{
+					keyHash:  otherKeyHash,
+					distance: current.distance + 1,
+				})
+			}
+			hashes.RUnlock()
+		}
+		ips.RUnlock()
 	}
 
 	// Convert map to slice

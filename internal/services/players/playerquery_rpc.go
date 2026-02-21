@@ -58,7 +58,7 @@ func (s *PlayerQueryService) GetPlayerInfo(ctx context.Context, req *v1.PlayerIn
 		return nil, status.Error(codes.InvalidArgument, "key_hash is required")
 	}
 
-	if _, ok := s.db.hashToUsernames[req.KeyHash]; !ok {
+	if _, ok := s.db.hashToUsernames.Load(req.KeyHash); !ok {
 		return nil, status.Error(codes.NotFound, "player not found")
 	}
 
@@ -119,16 +119,18 @@ func (s *PlayerQueryService) buildBanStatus(keyHash string) *v1.BanStatus {
 
 	actions := make([]*logs.AdminEntry, 0)
 
-	if actions, exists := s.db.actionsTargetedByHash[keyHash]; exists {
-		actions = append(actions, actions...)
+	if partial, exists := s.db.actionsTargetedByHash.Load(keyHash); exists {
+		partial.AppendTo(actions)
 	}
 
-	if names, exists := s.db.hashToUsernames[keyHash]; exists {
-		for name := range names {
-			if userActions, found := s.db.actionsTargeted[name]; found {
-				actions = append(actions, userActions...)
+	if names, exists := s.db.hashToUsernames.Load(keyHash); exists {
+		names.RLock()
+		for name := range names.M {
+			if userActions, found := s.db.actionsTargeted.Load(name); found {
+				userActions.AppendTo(actions)
 			}
 		}
+		names.RUnlock()
 	}
 
 	sort.Slice(actions, func(i, j int) bool {
