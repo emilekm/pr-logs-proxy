@@ -4,8 +4,8 @@ import (
 	"context"
 	"encoding/binary"
 
-	v1 "github.com/Alliance-Community/pr-logs-proxy/logsproxy/v1"
 	"github.com/emilekm/go-prbf2/logs"
+	v1 "github.com/emilekm/pr-logs-proxy/logsproxy/v1"
 )
 
 var _ v1.JoinLogServiceServer = (*JoinLogService)(nil)

@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"log/slog"
 
-	"github.com/Alliance-Community/pr-logs-proxy/internal/services/logs"
-	v1 "github.com/Alliance-Community/pr-logs-proxy/logsproxy/v1"
+	"github.com/emilekm/pr-logs-proxy/internal/services/logs"
+	v1 "github.com/emilekm/pr-logs-proxy/logsproxy/v1"
 )
 
 var _ v1.PlayerQueryServiceServer = (*PlayerQueryService)(nil)

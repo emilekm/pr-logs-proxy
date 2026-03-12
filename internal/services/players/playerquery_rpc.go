@@ -5,9 +5,9 @@ import (
 	"sort"
 	"time"
 
-	internal_logs "github.com/Alliance-Community/pr-logs-proxy/internal/services/logs"
-	v1 "github.com/Alliance-Community/pr-logs-proxy/logsproxy/v1"
 	"github.com/emilekm/go-prbf2/logs"
+	internal_logs "github.com/emilekm/pr-logs-proxy/internal/services/logs"
+	v1 "github.com/emilekm/pr-logs-proxy/logsproxy/v1"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )

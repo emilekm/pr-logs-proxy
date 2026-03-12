@@ -1777,7 +1777,7 @@ const file_logsproxy_v1_logs_proto_rawDesc = "" +
 	"PlayerInfo\x12\x1f.logsproxy.v1.PlayerInfoRequest\x1a .logsproxy.v1.PlayerInfoResponse\x12O\n" +
 	"\n" +
 	"PlayerLogs\x12\x1f.logsproxy.v1.PlayerLogsRequest\x1a .logsproxy.v1.PlayerLogsResponse\x12a\n" +
-	"\x10ConnectedPlayers\x12%.logsproxy.v1.ConnectedPlayersRequest\x1a&.logsproxy.v1.ConnectedPlayersResponseB:Z8github.com/alliance-community/pr-logs-proxy/logsproxy/v1b\x06proto3"
+	"\x10ConnectedPlayers\x12%.logsproxy.v1.ConnectedPlayersRequest\x1a&.logsproxy.v1.ConnectedPlayersResponseB/Z-github.com/emilekm/pr-logs-proxy/logsproxy/v1b\x06proto3"
 
 var (
 	file_logsproxy_v1_logs_proto_rawDescOnce sync.Once

@@ -22,4 +22,4 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           push: true
-          tags: ghcr.io/alliance-community/pr-logs-proxy:latest,ghcr.io/alliance-community/pr-logs-proxy:${{ github.ref_name }}
+          tags: ghcr.io/emilekm/pr-logs-proxy:latest,ghcr.io/emilekm/pr-logs-proxy:${{ github.ref_name }}

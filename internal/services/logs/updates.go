@@ -7,8 +7,8 @@ import (
 	"os"
 	"sync"
 
-	v1 "github.com/Alliance-Community/pr-logs-proxy/logsproxy/v1"
 	"github.com/emilekm/go-prbf2/logs"
+	v1 "github.com/emilekm/pr-logs-proxy/logsproxy/v1"
 	"github.com/nxadm/tail"
 	"google.golang.org/grpc"
 )

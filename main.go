@@ -11,9 +11,9 @@ import (
 	"path/filepath"
 	"runtime/pprof"
 
-	"github.com/Alliance-Community/pr-logs-proxy/internal/services/logs"
-	"github.com/Alliance-Community/pr-logs-proxy/internal/services/players"
-	v1 "github.com/Alliance-Community/pr-logs-proxy/logsproxy/v1"
+	"github.com/emilekm/pr-logs-proxy/internal/services/logs"
+	"github.com/emilekm/pr-logs-proxy/internal/services/players"
+	v1 "github.com/emilekm/pr-logs-proxy/logsproxy/v1"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 )

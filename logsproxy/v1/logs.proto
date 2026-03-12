@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package logsproxy.v1;
 
-option go_package = "github.com/alliance-community/pr-logs-proxy/logsproxy/v1";
+option go_package = "github.com/emilekm/pr-logs-proxy/logsproxy/v1";
 
 enum AdminAction {
   ADMIN_ACTION_UNSPECIFIED = 0;
@@ -50,20 +50,17 @@ message AdminLogEntry {
   string target = 5;
   string details = 6;
 }
-message AdminLogUpdatesRequest {
-  optional uint64 line_number = 1;
-}
+message AdminLogUpdatesRequest { optional uint64 line_number = 1; }
 message AdminLogUpdatesResponse {
   AdminLogEntry entry = 1;
   uint64 line_number = 2;
 }
 message AdminsLogsRequest {}
-message AdminsLogsResponse {
-  repeated AdminLogEntry entries = 1;
-}
+message AdminsLogsResponse { repeated AdminLogEntry entries = 1; }
 
 service AdminLogService {
-  rpc AdminLogUpdates(AdminLogUpdatesRequest) returns (stream AdminLogUpdatesResponse);
+  rpc AdminLogUpdates(AdminLogUpdatesRequest)
+      returns (stream AdminLogUpdatesResponse);
   rpc AdminsLogs(AdminsLogsRequest) returns (AdminsLogsResponse);
 }
 
@@ -83,20 +80,17 @@ message JoinLogEntry {
   fixed32 ipv4 = 6;
   AccountStatus status = 7;
 }
-message JoinLogUpdatesRequest {
-  optional uint64 line_number = 1;
-}
+message JoinLogUpdatesRequest { optional uint64 line_number = 1; }
 message JoinLogUpdatesResponse {
   JoinLogEntry entry = 1;
   uint64 line_number = 2;
 }
 message JoinLogsRequest {}
-message JoinLogsResponse {
-  repeated JoinLogEntry entries = 1;
-}
+message JoinLogsResponse { repeated JoinLogEntry entries = 1; }
 
 service JoinLogService {
-  rpc JoinLogUpdates(JoinLogUpdatesRequest) returns (stream JoinLogUpdatesResponse);
+  rpc JoinLogUpdates(JoinLogUpdatesRequest)
+      returns (stream JoinLogUpdatesResponse);
   rpc JoinLogs(JoinLogsRequest) returns (JoinLogsResponse);
 }
 
@@ -106,21 +100,19 @@ message PlayerProfileEntry {
   uint32 trust_level = 3;
   string username = 4;
 }
-message PlayerProfilesUpdatesRequest {
-  optional uint64 line_number = 1;
-}
+message PlayerProfilesUpdatesRequest { optional uint64 line_number = 1; }
 message PlayerProfilesUpdatesResponse {
   PlayerProfileEntry entry = 1;
   uint64 line_number = 2;
 }
 message PlayerProfilesLogsRequest {}
-message PlayerProfilesLogsResponse {
-  repeated PlayerProfileEntry entries = 1;
-}
+message PlayerProfilesLogsResponse { repeated PlayerProfileEntry entries = 1; }
 
 service PlayerProfilesService {
-  rpc PlayerProfilesUpdates(PlayerProfilesUpdatesRequest) returns (stream PlayerProfilesUpdatesResponse);
-  rpc PlayerProfilesLogs(PlayerProfilesLogsRequest) returns (PlayerProfilesLogsResponse);
+  rpc PlayerProfilesUpdates(PlayerProfilesUpdatesRequest)
+      returns (stream PlayerProfilesUpdatesResponse);
+  rpc PlayerProfilesLogs(PlayerProfilesLogsRequest)
+      returns (PlayerProfilesLogsResponse);
 }
 
 // Player query messages
@@ -134,13 +126,9 @@ message PlayerSearchResult {
   repeated string other_names = 3;
 }
 
-message SearchPlayersResponse {
-  repeated PlayerSearchResult results = 1;
-}
+message SearchPlayersResponse { repeated PlayerSearchResult results = 1; }
 
-message PlayerInfoRequest {
-  string key_hash = 1;
-}
+message PlayerInfoRequest { string key_hash = 1; }
 
 message PlayerIP {
   fixed32 ip = 1; // IPv4 address as uint32
@@ -149,7 +137,7 @@ message PlayerIP {
 }
 
 message BanStatus {
-  AdminLogEntry ban = 1; // Ban action
+  AdminLogEntry ban = 1;   // Ban action
   AdminLogEntry unban = 2; // Unban action (optional, may be null)
 }
 
@@ -157,7 +145,7 @@ message PlayerInfoResponse {
   string key_hash = 1;
   repeated string names = 2; // All names associated with this hash
   repeated PlayerIP ips = 3; // All IPs associated with this hash
-  BanStatus ban_status = 4; // Ban and unban actions (optional)
+  BanStatus ban_status = 4;  // Ban and unban actions (optional)
 }
 
 message PlayerLogsRequest {
@@ -174,19 +162,21 @@ message ConnectedPlayersRequest {
 }
 
 message ConnectionInfo {
-  string key_hash = 1; // The connected player's keyHash
+  string key_hash = 1;     // The connected player's keyHash
   string via_key_hash = 2; // The keyHash that led to discovering this
-  fixed32 via_ip = 3; // The IP address that connected them
+  fixed32 via_ip = 3;      // The IP address that connected them
   int32 distance_hops = 4; // Number of hops from the original keyHash
 }
 
 message ConnectedPlayersResponse {
-  repeated ConnectionInfo connections = 1; // How each player is connected to the original keyHash
+  repeated ConnectionInfo connections =
+      1; // How each player is connected to the original keyHash
 }
 
 service PlayerQueryService {
   rpc SearchPlayers(SearchPlayersRequest) returns (SearchPlayersResponse);
   rpc PlayerInfo(PlayerInfoRequest) returns (PlayerInfoResponse);
   rpc PlayerLogs(PlayerLogsRequest) returns (PlayerLogsResponse);
-  rpc ConnectedPlayers(ConnectedPlayersRequest) returns (ConnectedPlayersResponse);
+  rpc ConnectedPlayers(ConnectedPlayersRequest)
+      returns (ConnectedPlayersResponse);
 }
