@@ -24,13 +24,25 @@ func (s *syncSlice[T]) Append(item T) {
 }
 
 func (s *syncSlice[T]) Range(f func(item T) bool) {
+	// Iterate over the slice until length at the time of starting the iteration to avoid holding the lock for the entire duration
 	s.mu.Lock()
-	defer s.mu.Unlock()
-	for _, item := range s.slice {
-		if !f(item) {
+	length := len(s.slice)
+	s.mu.Unlock()
+
+	for i := range length {
+		if !f(s.slice[i]) {
 			break
 		}
 	}
+
+	s.mu.Lock()
+	// Check if new items were added during iteration and iterate over them as well
+	for i := length; i < len(s.slice); i++ {
+		if !f(s.slice[i]) {
+			break
+		}
+	}
+	s.mu.Unlock()
 }
 
 func (s *syncSlice[T]) AppendTo(items []T) []T {
@@ -52,9 +64,13 @@ func newSimpleSyncMap[K comparable, V any]() *simpleSyncMap[K, V] {
 type PlayerDatabase struct {
 	// profiles              *syncmap.Map[string, []*logs.PlayerProfileEntry] // key_hash -> profile (concurrent)
 	joins                 *syncmap.Map[string, *syncSlice[*logs.JoinEntry]]  // key_hash -> join (concurrent)
+	actions               *syncmap.Map[string, *syncSlice[*logs.AdminEntry]] // username -> actions (concurrent)
 	actionsIssued         *syncmap.Map[string, *syncSlice[*logs.AdminEntry]] // username -> actions (concurrent)
 	actionsTargeted       *syncmap.Map[string, *syncSlice[*logs.AdminEntry]] // username -> actions (concurrent)
 	actionsTargetedByHash *syncmap.Map[string, *syncSlice[*logs.AdminEntry]] // key_hash -> actions (concurrent)
+
+	banByUsername   *syncmap.Map[string, *logs.AdminEntry] // username -> latest ban action (concurrent)
+	unbanByUsername *syncmap.Map[string, *logs.AdminEntry] // username -> latest unban action (concurrent)
 
 	usernamesToHash *syncmap.Map[string, string]                           // username -> key_hash (concurrent)
 	hashToUsernames *syncmap.Map[string, *simpleSyncMap[string, struct{}]] // key_hash -> set of connected usernames (concurrent)
@@ -111,6 +127,9 @@ func (db *PlayerDatabase) AddAdminEntry(entry *logs.AdminEntry) {
 	issued, _ := db.actionsIssued.LoadOrStore(issuer, &syncSlice[*logs.AdminEntry]{})
 	issued.Append(entry)
 
+	actions, _ := db.actions.LoadOrStore(issuer, &syncSlice[*logs.AdminEntry]{})
+	actions.Append(entry)
+
 	keyHash := extractKeyHashFromTarget(entry.Target)
 	if keyHash != "" {
 		// Index by target key_hash
@@ -121,6 +140,15 @@ func (db *PlayerDatabase) AddAdminEntry(entry *logs.AdminEntry) {
 		target := cleanName(entry.Target)
 		targeted, _ := db.actionsTargeted.LoadOrStore(target, &syncSlice[*logs.AdminEntry]{})
 		targeted.Append(entry)
+
+		actions, _ := db.actions.LoadOrStore(target, &syncSlice[*logs.AdminEntry]{})
+		actions.Append(entry)
+
+		if IsBanAction(entry.Action) {
+			db.banByUsername.Store(target, entry)
+		} else if IsUnbanAction(entry.Action) {
+			db.unbanByUsername.Store(target, entry)
+		}
 	}
 }
 
@@ -220,11 +248,8 @@ func (db *PlayerDatabase) GetActions(keyHash string) []*logs.AdminEntry {
 	if names, exists := db.hashToUsernames.Load(keyHash); exists {
 		names.RLock()
 		for name := range names.M {
-			if userActions, found := db.actionsTargeted.Load(name); found {
-				userActions.AppendTo(actions)
-			}
-			if issuerActions, found := db.actionsIssued.Load(name); found {
-				issuerActions.AppendTo(actions)
+			if actionsAll, ok := db.actions.Load(name); ok {
+				actionsAll.AppendTo(actions)
 			}
 		}
 		names.RUnlock()

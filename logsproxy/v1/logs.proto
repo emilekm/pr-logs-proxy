@@ -174,9 +174,10 @@ message ConnectedPlayersRequest {
 }
 
 message ConnectionInfo {
-  string via_key_hash = 1; // The keyHash that led to discovering this
-  fixed32 via_ip = 2; // The IP address that connected them
-  int32 distance_hops = 3; // Number of hops from the original keyHash
+  string key_hash = 1; // The connected player's keyHash
+  string via_key_hash = 2; // The keyHash that led to discovering this
+  fixed32 via_ip = 3; // The IP address that connected them
+  int32 distance_hops = 4; // Number of hops from the original keyHash
 }
 
 message ConnectedPlayersResponse {

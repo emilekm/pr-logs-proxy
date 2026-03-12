@@ -24,7 +24,7 @@ func NewAdminLogService(logPath string) (*AdminLogService, error) {
 		},
 		func(entry *logs.AdminEntry, lineNum uint64) *v1.AdminLogUpdatesResponse {
 			return &v1.AdminLogUpdatesResponse{
-				Entry:      adminEntryToProto(entry),
+				Entry:      AdminEntryToProto(entry),
 				LineNumber: lineNum,
 			}
 		},
@@ -51,7 +51,7 @@ func (s *AdminLogService) AdminsLogs(ctx context.Context, req *v1.AdminsLogsRequ
 	// Convert to protobuf format
 	entries := make([]*v1.AdminLogEntry, 0, len(allEntries))
 	for _, entry := range allEntries {
-		entries = append(entries, adminEntryToProto(entry))
+		entries = append(entries, AdminEntryToProto(entry))
 	}
 
 	return &v1.AdminsLogsResponse{
@@ -59,18 +59,18 @@ func (s *AdminLogService) AdminsLogs(ctx context.Context, req *v1.AdminsLogsRequ
 	}, nil
 }
 
-func adminEntryToProto(entry *logs.AdminEntry) *v1.AdminLogEntry {
+func AdminEntryToProto(entry *logs.AdminEntry) *v1.AdminLogEntry {
 	return &v1.AdminLogEntry{
 		Timestamp: entry.Timestamp.Unix(),
 		Issuer:    entry.Issuer,
-		Action:    adminActionFromLog(entry.Action),
+		Action:    AdminActionFromLog(entry.Action),
 		ActionStr: entry.Action,
 		Target:    entry.Target,
 		Details:   entry.Details,
 	}
 }
 
-func adminActionFromLog(cmd string) v1.AdminAction {
+func AdminActionFromLog(cmd string) v1.AdminAction {
 	upper := strings.ToUpper(strings.TrimPrefix(cmd, "!"))
 	switch upper {
 	case "AA":

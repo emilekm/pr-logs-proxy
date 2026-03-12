@@ -1505,9 +1505,10 @@ func (x *ConnectedPlayersRequest) GetKeyHash() string {
 
 type ConnectionInfo struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	ViaKeyHash    string                 `protobuf:"bytes,1,opt,name=via_key_hash,json=viaKeyHash,proto3" json:"via_key_hash,omitempty"`      // The keyHash that led to discovering this
-	ViaIp         uint32                 `protobuf:"fixed32,2,opt,name=via_ip,json=viaIp,proto3" json:"via_ip,omitempty"`                     // The IP address that connected them
-	DistanceHops  int32                  `protobuf:"varint,3,opt,name=distance_hops,json=distanceHops,proto3" json:"distance_hops,omitempty"` // Number of hops from the original keyHash
+	KeyHash       string                 `protobuf:"bytes,1,opt,name=key_hash,json=keyHash,proto3" json:"key_hash,omitempty"`                 // The connected player's keyHash
+	ViaKeyHash    string                 `protobuf:"bytes,2,opt,name=via_key_hash,json=viaKeyHash,proto3" json:"via_key_hash,omitempty"`      // The keyHash that led to discovering this
+	ViaIp         uint32                 `protobuf:"fixed32,3,opt,name=via_ip,json=viaIp,proto3" json:"via_ip,omitempty"`                     // The IP address that connected them
+	DistanceHops  int32                  `protobuf:"varint,4,opt,name=distance_hops,json=distanceHops,proto3" json:"distance_hops,omitempty"` // Number of hops from the original keyHash
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1540,6 +1541,13 @@ func (x *ConnectionInfo) ProtoReflect() protoreflect.Message {
 // Deprecated: Use ConnectionInfo.ProtoReflect.Descriptor instead.
 func (*ConnectionInfo) Descriptor() ([]byte, []int) {
 	return file_logsproxy_v1_logs_proto_rawDescGZIP(), []int{25}
+}
+
+func (x *ConnectionInfo) GetKeyHash() string {
+	if x != nil {
+		return x.KeyHash
+	}
+	return ""
 }
 
 func (x *ConnectionInfo) GetViaKeyHash() string {
@@ -1702,12 +1710,13 @@ const file_logsproxy_v1_logs_proto_rawDesc = "" +
 	"\n" +
 	"admin_logs\x18\x01 \x03(\v2\x1b.logsproxy.v1.AdminLogEntryR\tadminLogs\"4\n" +
 	"\x17ConnectedPlayersRequest\x12\x19\n" +
-	"\bkey_hash\x18\x01 \x01(\tR\akeyHash\"n\n" +
-	"\x0eConnectionInfo\x12 \n" +
-	"\fvia_key_hash\x18\x01 \x01(\tR\n" +
+	"\bkey_hash\x18\x01 \x01(\tR\akeyHash\"\x89\x01\n" +
+	"\x0eConnectionInfo\x12\x19\n" +
+	"\bkey_hash\x18\x01 \x01(\tR\akeyHash\x12 \n" +
+	"\fvia_key_hash\x18\x02 \x01(\tR\n" +
 	"viaKeyHash\x12\x15\n" +
-	"\x06via_ip\x18\x02 \x01(\aR\x05viaIp\x12#\n" +
-	"\rdistance_hops\x18\x03 \x01(\x05R\fdistanceHops\"Z\n" +
+	"\x06via_ip\x18\x03 \x01(\aR\x05viaIp\x12#\n" +
+	"\rdistance_hops\x18\x04 \x01(\x05R\fdistanceHops\"Z\n" +
 	"\x18ConnectedPlayersResponse\x12>\n" +
 	"\vconnections\x18\x01 \x03(\v2\x1c.logsproxy.v1.ConnectionInfoR\vconnections*\x8b\a\n" +
 	"\vAdminAction\x12\x1c\n" +
