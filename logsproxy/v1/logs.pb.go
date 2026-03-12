@@ -21,6 +21,151 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+type AdminAction int32
+
+const (
+	AdminAction_ADMIN_ACTION_UNSPECIFIED   AdminAction = 0
+	AdminAction_ADMIN_ACTION_AA            AdminAction = 1
+	AdminAction_ADMIN_ACTION_ALLOWEDID     AdminAction = 2
+	AdminAction_ADMIN_ACTION_BAN           AdminAction = 3
+	AdminAction_ADMIN_ACTION_BANID         AdminAction = 4
+	AdminAction_ADMIN_ACTION_FLY           AdminAction = 5
+	AdminAction_ADMIN_ACTION_HASH          AdminAction = 6
+	AdminAction_ADMIN_ACTION_INIT          AdminAction = 7
+	AdminAction_ADMIN_ACTION_KICK          AdminAction = 8
+	AdminAction_ADMIN_ACTION_KILL          AdminAction = 9
+	AdminAction_ADMIN_ACTION_MAPVOTE       AdminAction = 10
+	AdminAction_ADMIN_ACTION_MAPVOTERESULT AdminAction = 11
+	AdminAction_ADMIN_ACTION_MESSAGE       AdminAction = 12
+	AdminAction_ADMIN_ACTION_RELOAD        AdminAction = 13
+	AdminAction_ADMIN_ACTION_REPORT        AdminAction = 14
+	AdminAction_ADMIN_ACTION_REPORTP       AdminAction = 15
+	AdminAction_ADMIN_ACTION_RESIGN        AdminAction = 16
+	AdminAction_ADMIN_ACTION_RESIGNALL     AdminAction = 17
+	AdminAction_ADMIN_ACTION_RUNNEXT       AdminAction = 18
+	AdminAction_ADMIN_ACTION_SAY           AdminAction = 19
+	AdminAction_ADMIN_ACTION_SAYTEAM       AdminAction = 20
+	AdminAction_ADMIN_ACTION_SCRAMBLE      AdminAction = 21
+	AdminAction_ADMIN_ACTION_SETNEXT       AdminAction = 22
+	AdminAction_ADMIN_ACTION_STOPSERVER    AdminAction = 23
+	AdminAction_ADMIN_ACTION_SWAPTEAMS     AdminAction = 24
+	AdminAction_ADMIN_ACTION_SWITCH        AdminAction = 25
+	AdminAction_ADMIN_ACTION_TEMPBAN       AdminAction = 26
+	AdminAction_ADMIN_ACTION_TICKETS       AdminAction = 27
+	AdminAction_ADMIN_ACTION_TIMEBAN       AdminAction = 28
+	AdminAction_ADMIN_ACTION_TIMEBANID     AdminAction = 29
+	AdminAction_ADMIN_ACTION_UNBAN         AdminAction = 30
+	AdminAction_ADMIN_ACTION_UNBANID       AdminAction = 31
+	AdminAction_ADMIN_ACTION_UNBANNAME     AdminAction = 32
+	AdminAction_ADMIN_ACTION_UNGRIEF       AdminAction = 33
+	AdminAction_ADMIN_ACTION_WARN          AdminAction = 34
+)
+
+// Enum value maps for AdminAction.
+var (
+	AdminAction_name = map[int32]string{
+		0:  "ADMIN_ACTION_UNSPECIFIED",
+		1:  "ADMIN_ACTION_AA",
+		2:  "ADMIN_ACTION_ALLOWEDID",
+		3:  "ADMIN_ACTION_BAN",
+		4:  "ADMIN_ACTION_BANID",
+		5:  "ADMIN_ACTION_FLY",
+		6:  "ADMIN_ACTION_HASH",
+		7:  "ADMIN_ACTION_INIT",
+		8:  "ADMIN_ACTION_KICK",
+		9:  "ADMIN_ACTION_KILL",
+		10: "ADMIN_ACTION_MAPVOTE",
+		11: "ADMIN_ACTION_MAPVOTERESULT",
+		12: "ADMIN_ACTION_MESSAGE",
+		13: "ADMIN_ACTION_RELOAD",
+		14: "ADMIN_ACTION_REPORT",
+		15: "ADMIN_ACTION_REPORTP",
+		16: "ADMIN_ACTION_RESIGN",
+		17: "ADMIN_ACTION_RESIGNALL",
+		18: "ADMIN_ACTION_RUNNEXT",
+		19: "ADMIN_ACTION_SAY",
+		20: "ADMIN_ACTION_SAYTEAM",
+		21: "ADMIN_ACTION_SCRAMBLE",
+		22: "ADMIN_ACTION_SETNEXT",
+		23: "ADMIN_ACTION_STOPSERVER",
+		24: "ADMIN_ACTION_SWAPTEAMS",
+		25: "ADMIN_ACTION_SWITCH",
+		26: "ADMIN_ACTION_TEMPBAN",
+		27: "ADMIN_ACTION_TICKETS",
+		28: "ADMIN_ACTION_TIMEBAN",
+		29: "ADMIN_ACTION_TIMEBANID",
+		30: "ADMIN_ACTION_UNBAN",
+		31: "ADMIN_ACTION_UNBANID",
+		32: "ADMIN_ACTION_UNBANNAME",
+		33: "ADMIN_ACTION_UNGRIEF",
+		34: "ADMIN_ACTION_WARN",
+	}
+	AdminAction_value = map[string]int32{
+		"ADMIN_ACTION_UNSPECIFIED":   0,
+		"ADMIN_ACTION_AA":            1,
+		"ADMIN_ACTION_ALLOWEDID":     2,
+		"ADMIN_ACTION_BAN":           3,
+		"ADMIN_ACTION_BANID":         4,
+		"ADMIN_ACTION_FLY":           5,
+		"ADMIN_ACTION_HASH":          6,
+		"ADMIN_ACTION_INIT":          7,
+		"ADMIN_ACTION_KICK":          8,
+		"ADMIN_ACTION_KILL":          9,
+		"ADMIN_ACTION_MAPVOTE":       10,
+		"ADMIN_ACTION_MAPVOTERESULT": 11,
+		"ADMIN_ACTION_MESSAGE":       12,
+		"ADMIN_ACTION_RELOAD":        13,
+		"ADMIN_ACTION_REPORT":        14,
+		"ADMIN_ACTION_REPORTP":       15,
+		"ADMIN_ACTION_RESIGN":        16,
+		"ADMIN_ACTION_RESIGNALL":     17,
+		"ADMIN_ACTION_RUNNEXT":       18,
+		"ADMIN_ACTION_SAY":           19,
+		"ADMIN_ACTION_SAYTEAM":       20,
+		"ADMIN_ACTION_SCRAMBLE":      21,
+		"ADMIN_ACTION_SETNEXT":       22,
+		"ADMIN_ACTION_STOPSERVER":    23,
+		"ADMIN_ACTION_SWAPTEAMS":     24,
+		"ADMIN_ACTION_SWITCH":        25,
+		"ADMIN_ACTION_TEMPBAN":       26,
+		"ADMIN_ACTION_TICKETS":       27,
+		"ADMIN_ACTION_TIMEBAN":       28,
+		"ADMIN_ACTION_TIMEBANID":     29,
+		"ADMIN_ACTION_UNBAN":         30,
+		"ADMIN_ACTION_UNBANID":       31,
+		"ADMIN_ACTION_UNBANNAME":     32,
+		"ADMIN_ACTION_UNGRIEF":       33,
+		"ADMIN_ACTION_WARN":          34,
+	}
+)
+
+func (x AdminAction) Enum() *AdminAction {
+	p := new(AdminAction)
+	*p = x
+	return p
+}
+
+func (x AdminAction) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (AdminAction) Descriptor() protoreflect.EnumDescriptor {
+	return file_logsproxy_v1_logs_proto_enumTypes[0].Descriptor()
+}
+
+func (AdminAction) Type() protoreflect.EnumType {
+	return &file_logsproxy_v1_logs_proto_enumTypes[0]
+}
+
+func (x AdminAction) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use AdminAction.Descriptor instead.
+func (AdminAction) EnumDescriptor() ([]byte, []int) {
+	return file_logsproxy_v1_logs_proto_rawDescGZIP(), []int{0}
+}
+
 type AccountStatus int32
 
 const (
@@ -57,11 +202,11 @@ func (x AccountStatus) String() string {
 }
 
 func (AccountStatus) Descriptor() protoreflect.EnumDescriptor {
-	return file_logsproxy_v1_logs_proto_enumTypes[0].Descriptor()
+	return file_logsproxy_v1_logs_proto_enumTypes[1].Descriptor()
 }
 
 func (AccountStatus) Type() protoreflect.EnumType {
-	return &file_logsproxy_v1_logs_proto_enumTypes[0]
+	return &file_logsproxy_v1_logs_proto_enumTypes[1]
 }
 
 func (x AccountStatus) Number() protoreflect.EnumNumber {
@@ -70,16 +215,17 @@ func (x AccountStatus) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use AccountStatus.Descriptor instead.
 func (AccountStatus) EnumDescriptor() ([]byte, []int) {
-	return file_logsproxy_v1_logs_proto_rawDescGZIP(), []int{0}
+	return file_logsproxy_v1_logs_proto_rawDescGZIP(), []int{1}
 }
 
 type AdminLogEntry struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Timestamp     int64                  `protobuf:"varint,1,opt,name=timestamp,proto3" json:"timestamp,omitempty"`
-	Action        string                 `protobuf:"bytes,2,opt,name=action,proto3" json:"action,omitempty"`
-	Issuer        string                 `protobuf:"bytes,3,opt,name=issuer,proto3" json:"issuer,omitempty"`
-	Target        string                 `protobuf:"bytes,4,opt,name=target,proto3" json:"target,omitempty"`
-	Details       string                 `protobuf:"bytes,5,opt,name=details,proto3" json:"details,omitempty"`
+	Action        AdminAction            `protobuf:"varint,2,opt,name=action,proto3,enum=logsproxy.v1.AdminAction" json:"action,omitempty"`
+	ActionStr     string                 `protobuf:"bytes,3,opt,name=action_str,json=actionStr,proto3" json:"action_str,omitempty"`
+	Issuer        string                 `protobuf:"bytes,4,opt,name=issuer,proto3" json:"issuer,omitempty"`
+	Target        string                 `protobuf:"bytes,5,opt,name=target,proto3" json:"target,omitempty"`
+	Details       string                 `protobuf:"bytes,6,opt,name=details,proto3" json:"details,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -121,9 +267,16 @@ func (x *AdminLogEntry) GetTimestamp() int64 {
 	return 0
 }
 
-func (x *AdminLogEntry) GetAction() string {
+func (x *AdminLogEntry) GetAction() AdminAction {
 	if x != nil {
 		return x.Action
+	}
+	return AdminAction_ADMIN_ACTION_UNSPECIFIED
+}
+
+func (x *AdminLogEntry) GetActionStr() string {
+	if x != nil {
+		return x.ActionStr
 	}
 	return ""
 }
@@ -1458,13 +1611,15 @@ var File_logsproxy_v1_logs_proto protoreflect.FileDescriptor
 
 const file_logsproxy_v1_logs_proto_rawDesc = "" +
 	"\n" +
-	"\x17logsproxy/v1/logs.proto\x12\flogsproxy.v1\"\x8f\x01\n" +
+	"\x17logsproxy/v1/logs.proto\x12\flogsproxy.v1\"\xc9\x01\n" +
 	"\rAdminLogEntry\x12\x1c\n" +
-	"\ttimestamp\x18\x01 \x01(\x03R\ttimestamp\x12\x16\n" +
-	"\x06action\x18\x02 \x01(\tR\x06action\x12\x16\n" +
-	"\x06issuer\x18\x03 \x01(\tR\x06issuer\x12\x16\n" +
-	"\x06target\x18\x04 \x01(\tR\x06target\x12\x18\n" +
-	"\adetails\x18\x05 \x01(\tR\adetails\"N\n" +
+	"\ttimestamp\x18\x01 \x01(\x03R\ttimestamp\x121\n" +
+	"\x06action\x18\x02 \x01(\x0e2\x19.logsproxy.v1.AdminActionR\x06action\x12\x1d\n" +
+	"\n" +
+	"action_str\x18\x03 \x01(\tR\tactionStr\x12\x16\n" +
+	"\x06issuer\x18\x04 \x01(\tR\x06issuer\x12\x16\n" +
+	"\x06target\x18\x05 \x01(\tR\x06target\x12\x18\n" +
+	"\adetails\x18\x06 \x01(\tR\adetails\"N\n" +
 	"\x16AdminLogUpdatesRequest\x12$\n" +
 	"\vline_number\x18\x01 \x01(\x04H\x00R\n" +
 	"lineNumber\x88\x01\x01B\x0e\n" +
@@ -1554,7 +1709,44 @@ const file_logsproxy_v1_logs_proto_rawDesc = "" +
 	"\x06via_ip\x18\x02 \x01(\aR\x05viaIp\x12#\n" +
 	"\rdistance_hops\x18\x03 \x01(\x05R\fdistanceHops\"Z\n" +
 	"\x18ConnectedPlayersResponse\x12>\n" +
-	"\vconnections\x18\x01 \x03(\v2\x1c.logsproxy.v1.ConnectionInfoR\vconnections*\x89\x01\n" +
+	"\vconnections\x18\x01 \x03(\v2\x1c.logsproxy.v1.ConnectionInfoR\vconnections*\x8b\a\n" +
+	"\vAdminAction\x12\x1c\n" +
+	"\x18ADMIN_ACTION_UNSPECIFIED\x10\x00\x12\x13\n" +
+	"\x0fADMIN_ACTION_AA\x10\x01\x12\x1a\n" +
+	"\x16ADMIN_ACTION_ALLOWEDID\x10\x02\x12\x14\n" +
+	"\x10ADMIN_ACTION_BAN\x10\x03\x12\x16\n" +
+	"\x12ADMIN_ACTION_BANID\x10\x04\x12\x14\n" +
+	"\x10ADMIN_ACTION_FLY\x10\x05\x12\x15\n" +
+	"\x11ADMIN_ACTION_HASH\x10\x06\x12\x15\n" +
+	"\x11ADMIN_ACTION_INIT\x10\a\x12\x15\n" +
+	"\x11ADMIN_ACTION_KICK\x10\b\x12\x15\n" +
+	"\x11ADMIN_ACTION_KILL\x10\t\x12\x18\n" +
+	"\x14ADMIN_ACTION_MAPVOTE\x10\n" +
+	"\x12\x1e\n" +
+	"\x1aADMIN_ACTION_MAPVOTERESULT\x10\v\x12\x18\n" +
+	"\x14ADMIN_ACTION_MESSAGE\x10\f\x12\x17\n" +
+	"\x13ADMIN_ACTION_RELOAD\x10\r\x12\x17\n" +
+	"\x13ADMIN_ACTION_REPORT\x10\x0e\x12\x18\n" +
+	"\x14ADMIN_ACTION_REPORTP\x10\x0f\x12\x17\n" +
+	"\x13ADMIN_ACTION_RESIGN\x10\x10\x12\x1a\n" +
+	"\x16ADMIN_ACTION_RESIGNALL\x10\x11\x12\x18\n" +
+	"\x14ADMIN_ACTION_RUNNEXT\x10\x12\x12\x14\n" +
+	"\x10ADMIN_ACTION_SAY\x10\x13\x12\x18\n" +
+	"\x14ADMIN_ACTION_SAYTEAM\x10\x14\x12\x19\n" +
+	"\x15ADMIN_ACTION_SCRAMBLE\x10\x15\x12\x18\n" +
+	"\x14ADMIN_ACTION_SETNEXT\x10\x16\x12\x1b\n" +
+	"\x17ADMIN_ACTION_STOPSERVER\x10\x17\x12\x1a\n" +
+	"\x16ADMIN_ACTION_SWAPTEAMS\x10\x18\x12\x17\n" +
+	"\x13ADMIN_ACTION_SWITCH\x10\x19\x12\x18\n" +
+	"\x14ADMIN_ACTION_TEMPBAN\x10\x1a\x12\x18\n" +
+	"\x14ADMIN_ACTION_TICKETS\x10\x1b\x12\x18\n" +
+	"\x14ADMIN_ACTION_TIMEBAN\x10\x1c\x12\x1a\n" +
+	"\x16ADMIN_ACTION_TIMEBANID\x10\x1d\x12\x16\n" +
+	"\x12ADMIN_ACTION_UNBAN\x10\x1e\x12\x18\n" +
+	"\x14ADMIN_ACTION_UNBANID\x10\x1f\x12\x1a\n" +
+	"\x16ADMIN_ACTION_UNBANNAME\x10 \x12\x18\n" +
+	"\x14ADMIN_ACTION_UNGRIEF\x10!\x12\x15\n" +
+	"\x11ADMIN_ACTION_WARN\x10\"*\x89\x01\n" +
 	"\rAccountStatus\x12\x1e\n" +
 	"\x1aACCOUNT_STATUS_UNSPECIFIED\x10\x00\x12\x19\n" +
 	"\x15ACCOUNT_STATUS_LEGACY\x10\x01\x12\x1e\n" +
@@ -1590,78 +1782,80 @@ func file_logsproxy_v1_logs_proto_rawDescGZIP() []byte {
 	return file_logsproxy_v1_logs_proto_rawDescData
 }
 
-var file_logsproxy_v1_logs_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
+var file_logsproxy_v1_logs_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
 var file_logsproxy_v1_logs_proto_msgTypes = make([]protoimpl.MessageInfo, 27)
 var file_logsproxy_v1_logs_proto_goTypes = []any{
-	(AccountStatus)(0),                    // 0: logsproxy.v1.AccountStatus
-	(*AdminLogEntry)(nil),                 // 1: logsproxy.v1.AdminLogEntry
-	(*AdminLogUpdatesRequest)(nil),        // 2: logsproxy.v1.AdminLogUpdatesRequest
-	(*AdminLogUpdatesResponse)(nil),       // 3: logsproxy.v1.AdminLogUpdatesResponse
-	(*AdminsLogsRequest)(nil),             // 4: logsproxy.v1.AdminsLogsRequest
-	(*AdminsLogsResponse)(nil),            // 5: logsproxy.v1.AdminsLogsResponse
-	(*JoinLogEntry)(nil),                  // 6: logsproxy.v1.JoinLogEntry
-	(*JoinLogUpdatesRequest)(nil),         // 7: logsproxy.v1.JoinLogUpdatesRequest
-	(*JoinLogUpdatesResponse)(nil),        // 8: logsproxy.v1.JoinLogUpdatesResponse
-	(*JoinLogsRequest)(nil),               // 9: logsproxy.v1.JoinLogsRequest
-	(*JoinLogsResponse)(nil),              // 10: logsproxy.v1.JoinLogsResponse
-	(*PlayerProfileEntry)(nil),            // 11: logsproxy.v1.PlayerProfileEntry
-	(*PlayerProfilesUpdatesRequest)(nil),  // 12: logsproxy.v1.PlayerProfilesUpdatesRequest
-	(*PlayerProfilesUpdatesResponse)(nil), // 13: logsproxy.v1.PlayerProfilesUpdatesResponse
-	(*PlayerProfilesLogsRequest)(nil),     // 14: logsproxy.v1.PlayerProfilesLogsRequest
-	(*PlayerProfilesLogsResponse)(nil),    // 15: logsproxy.v1.PlayerProfilesLogsResponse
-	(*SearchPlayersRequest)(nil),          // 16: logsproxy.v1.SearchPlayersRequest
-	(*PlayerSearchResult)(nil),            // 17: logsproxy.v1.PlayerSearchResult
-	(*SearchPlayersResponse)(nil),         // 18: logsproxy.v1.SearchPlayersResponse
-	(*PlayerInfoRequest)(nil),             // 19: logsproxy.v1.PlayerInfoRequest
-	(*PlayerIP)(nil),                      // 20: logsproxy.v1.PlayerIP
-	(*BanStatus)(nil),                     // 21: logsproxy.v1.BanStatus
-	(*PlayerInfoResponse)(nil),            // 22: logsproxy.v1.PlayerInfoResponse
-	(*PlayerLogsRequest)(nil),             // 23: logsproxy.v1.PlayerLogsRequest
-	(*PlayerLogsResponse)(nil),            // 24: logsproxy.v1.PlayerLogsResponse
-	(*ConnectedPlayersRequest)(nil),       // 25: logsproxy.v1.ConnectedPlayersRequest
-	(*ConnectionInfo)(nil),                // 26: logsproxy.v1.ConnectionInfo
-	(*ConnectedPlayersResponse)(nil),      // 27: logsproxy.v1.ConnectedPlayersResponse
+	(AdminAction)(0),                      // 0: logsproxy.v1.AdminAction
+	(AccountStatus)(0),                    // 1: logsproxy.v1.AccountStatus
+	(*AdminLogEntry)(nil),                 // 2: logsproxy.v1.AdminLogEntry
+	(*AdminLogUpdatesRequest)(nil),        // 3: logsproxy.v1.AdminLogUpdatesRequest
+	(*AdminLogUpdatesResponse)(nil),       // 4: logsproxy.v1.AdminLogUpdatesResponse
+	(*AdminsLogsRequest)(nil),             // 5: logsproxy.v1.AdminsLogsRequest
+	(*AdminsLogsResponse)(nil),            // 6: logsproxy.v1.AdminsLogsResponse
+	(*JoinLogEntry)(nil),                  // 7: logsproxy.v1.JoinLogEntry
+	(*JoinLogUpdatesRequest)(nil),         // 8: logsproxy.v1.JoinLogUpdatesRequest
+	(*JoinLogUpdatesResponse)(nil),        // 9: logsproxy.v1.JoinLogUpdatesResponse
+	(*JoinLogsRequest)(nil),               // 10: logsproxy.v1.JoinLogsRequest
+	(*JoinLogsResponse)(nil),              // 11: logsproxy.v1.JoinLogsResponse
+	(*PlayerProfileEntry)(nil),            // 12: logsproxy.v1.PlayerProfileEntry
+	(*PlayerProfilesUpdatesRequest)(nil),  // 13: logsproxy.v1.PlayerProfilesUpdatesRequest
+	(*PlayerProfilesUpdatesResponse)(nil), // 14: logsproxy.v1.PlayerProfilesUpdatesResponse
+	(*PlayerProfilesLogsRequest)(nil),     // 15: logsproxy.v1.PlayerProfilesLogsRequest
+	(*PlayerProfilesLogsResponse)(nil),    // 16: logsproxy.v1.PlayerProfilesLogsResponse
+	(*SearchPlayersRequest)(nil),          // 17: logsproxy.v1.SearchPlayersRequest
+	(*PlayerSearchResult)(nil),            // 18: logsproxy.v1.PlayerSearchResult
+	(*SearchPlayersResponse)(nil),         // 19: logsproxy.v1.SearchPlayersResponse
+	(*PlayerInfoRequest)(nil),             // 20: logsproxy.v1.PlayerInfoRequest
+	(*PlayerIP)(nil),                      // 21: logsproxy.v1.PlayerIP
+	(*BanStatus)(nil),                     // 22: logsproxy.v1.BanStatus
+	(*PlayerInfoResponse)(nil),            // 23: logsproxy.v1.PlayerInfoResponse
+	(*PlayerLogsRequest)(nil),             // 24: logsproxy.v1.PlayerLogsRequest
+	(*PlayerLogsResponse)(nil),            // 25: logsproxy.v1.PlayerLogsResponse
+	(*ConnectedPlayersRequest)(nil),       // 26: logsproxy.v1.ConnectedPlayersRequest
+	(*ConnectionInfo)(nil),                // 27: logsproxy.v1.ConnectionInfo
+	(*ConnectedPlayersResponse)(nil),      // 28: logsproxy.v1.ConnectedPlayersResponse
 }
 var file_logsproxy_v1_logs_proto_depIdxs = []int32{
-	1,  // 0: logsproxy.v1.AdminLogUpdatesResponse.entry:type_name -> logsproxy.v1.AdminLogEntry
-	1,  // 1: logsproxy.v1.AdminsLogsResponse.entries:type_name -> logsproxy.v1.AdminLogEntry
-	0,  // 2: logsproxy.v1.JoinLogEntry.status:type_name -> logsproxy.v1.AccountStatus
-	6,  // 3: logsproxy.v1.JoinLogUpdatesResponse.entry:type_name -> logsproxy.v1.JoinLogEntry
-	6,  // 4: logsproxy.v1.JoinLogsResponse.entries:type_name -> logsproxy.v1.JoinLogEntry
-	11, // 5: logsproxy.v1.PlayerProfilesUpdatesResponse.entry:type_name -> logsproxy.v1.PlayerProfileEntry
-	11, // 6: logsproxy.v1.PlayerProfilesLogsResponse.entries:type_name -> logsproxy.v1.PlayerProfileEntry
-	17, // 7: logsproxy.v1.SearchPlayersResponse.results:type_name -> logsproxy.v1.PlayerSearchResult
-	1,  // 8: logsproxy.v1.BanStatus.ban:type_name -> logsproxy.v1.AdminLogEntry
-	1,  // 9: logsproxy.v1.BanStatus.unban:type_name -> logsproxy.v1.AdminLogEntry
-	20, // 10: logsproxy.v1.PlayerInfoResponse.ips:type_name -> logsproxy.v1.PlayerIP
-	21, // 11: logsproxy.v1.PlayerInfoResponse.ban_status:type_name -> logsproxy.v1.BanStatus
-	1,  // 12: logsproxy.v1.PlayerLogsResponse.admin_logs:type_name -> logsproxy.v1.AdminLogEntry
-	26, // 13: logsproxy.v1.ConnectedPlayersResponse.connections:type_name -> logsproxy.v1.ConnectionInfo
-	2,  // 14: logsproxy.v1.AdminLogService.AdminLogUpdates:input_type -> logsproxy.v1.AdminLogUpdatesRequest
-	4,  // 15: logsproxy.v1.AdminLogService.AdminsLogs:input_type -> logsproxy.v1.AdminsLogsRequest
-	7,  // 16: logsproxy.v1.JoinLogService.JoinLogUpdates:input_type -> logsproxy.v1.JoinLogUpdatesRequest
-	9,  // 17: logsproxy.v1.JoinLogService.JoinLogs:input_type -> logsproxy.v1.JoinLogsRequest
-	12, // 18: logsproxy.v1.PlayerProfilesService.PlayerProfilesUpdates:input_type -> logsproxy.v1.PlayerProfilesUpdatesRequest
-	14, // 19: logsproxy.v1.PlayerProfilesService.PlayerProfilesLogs:input_type -> logsproxy.v1.PlayerProfilesLogsRequest
-	16, // 20: logsproxy.v1.PlayerQueryService.SearchPlayers:input_type -> logsproxy.v1.SearchPlayersRequest
-	19, // 21: logsproxy.v1.PlayerQueryService.PlayerInfo:input_type -> logsproxy.v1.PlayerInfoRequest
-	23, // 22: logsproxy.v1.PlayerQueryService.PlayerLogs:input_type -> logsproxy.v1.PlayerLogsRequest
-	25, // 23: logsproxy.v1.PlayerQueryService.ConnectedPlayers:input_type -> logsproxy.v1.ConnectedPlayersRequest
-	3,  // 24: logsproxy.v1.AdminLogService.AdminLogUpdates:output_type -> logsproxy.v1.AdminLogUpdatesResponse
-	5,  // 25: logsproxy.v1.AdminLogService.AdminsLogs:output_type -> logsproxy.v1.AdminsLogsResponse
-	8,  // 26: logsproxy.v1.JoinLogService.JoinLogUpdates:output_type -> logsproxy.v1.JoinLogUpdatesResponse
-	10, // 27: logsproxy.v1.JoinLogService.JoinLogs:output_type -> logsproxy.v1.JoinLogsResponse
-	13, // 28: logsproxy.v1.PlayerProfilesService.PlayerProfilesUpdates:output_type -> logsproxy.v1.PlayerProfilesUpdatesResponse
-	15, // 29: logsproxy.v1.PlayerProfilesService.PlayerProfilesLogs:output_type -> logsproxy.v1.PlayerProfilesLogsResponse
-	18, // 30: logsproxy.v1.PlayerQueryService.SearchPlayers:output_type -> logsproxy.v1.SearchPlayersResponse
-	22, // 31: logsproxy.v1.PlayerQueryService.PlayerInfo:output_type -> logsproxy.v1.PlayerInfoResponse
-	24, // 32: logsproxy.v1.PlayerQueryService.PlayerLogs:output_type -> logsproxy.v1.PlayerLogsResponse
-	27, // 33: logsproxy.v1.PlayerQueryService.ConnectedPlayers:output_type -> logsproxy.v1.ConnectedPlayersResponse
-	24, // [24:34] is the sub-list for method output_type
-	14, // [14:24] is the sub-list for method input_type
-	14, // [14:14] is the sub-list for extension type_name
-	14, // [14:14] is the sub-list for extension extendee
-	0,  // [0:14] is the sub-list for field type_name
+	0,  // 0: logsproxy.v1.AdminLogEntry.action:type_name -> logsproxy.v1.AdminAction
+	2,  // 1: logsproxy.v1.AdminLogUpdatesResponse.entry:type_name -> logsproxy.v1.AdminLogEntry
+	2,  // 2: logsproxy.v1.AdminsLogsResponse.entries:type_name -> logsproxy.v1.AdminLogEntry
+	1,  // 3: logsproxy.v1.JoinLogEntry.status:type_name -> logsproxy.v1.AccountStatus
+	7,  // 4: logsproxy.v1.JoinLogUpdatesResponse.entry:type_name -> logsproxy.v1.JoinLogEntry
+	7,  // 5: logsproxy.v1.JoinLogsResponse.entries:type_name -> logsproxy.v1.JoinLogEntry
+	12, // 6: logsproxy.v1.PlayerProfilesUpdatesResponse.entry:type_name -> logsproxy.v1.PlayerProfileEntry
+	12, // 7: logsproxy.v1.PlayerProfilesLogsResponse.entries:type_name -> logsproxy.v1.PlayerProfileEntry
+	18, // 8: logsproxy.v1.SearchPlayersResponse.results:type_name -> logsproxy.v1.PlayerSearchResult
+	2,  // 9: logsproxy.v1.BanStatus.ban:type_name -> logsproxy.v1.AdminLogEntry
+	2,  // 10: logsproxy.v1.BanStatus.unban:type_name -> logsproxy.v1.AdminLogEntry
+	21, // 11: logsproxy.v1.PlayerInfoResponse.ips:type_name -> logsproxy.v1.PlayerIP
+	22, // 12: logsproxy.v1.PlayerInfoResponse.ban_status:type_name -> logsproxy.v1.BanStatus
+	2,  // 13: logsproxy.v1.PlayerLogsResponse.admin_logs:type_name -> logsproxy.v1.AdminLogEntry
+	27, // 14: logsproxy.v1.ConnectedPlayersResponse.connections:type_name -> logsproxy.v1.ConnectionInfo
+	3,  // 15: logsproxy.v1.AdminLogService.AdminLogUpdates:input_type -> logsproxy.v1.AdminLogUpdatesRequest
+	5,  // 16: logsproxy.v1.AdminLogService.AdminsLogs:input_type -> logsproxy.v1.AdminsLogsRequest
+	8,  // 17: logsproxy.v1.JoinLogService.JoinLogUpdates:input_type -> logsproxy.v1.JoinLogUpdatesRequest
+	10, // 18: logsproxy.v1.JoinLogService.JoinLogs:input_type -> logsproxy.v1.JoinLogsRequest
+	13, // 19: logsproxy.v1.PlayerProfilesService.PlayerProfilesUpdates:input_type -> logsproxy.v1.PlayerProfilesUpdatesRequest
+	15, // 20: logsproxy.v1.PlayerProfilesService.PlayerProfilesLogs:input_type -> logsproxy.v1.PlayerProfilesLogsRequest
+	17, // 21: logsproxy.v1.PlayerQueryService.SearchPlayers:input_type -> logsproxy.v1.SearchPlayersRequest
+	20, // 22: logsproxy.v1.PlayerQueryService.PlayerInfo:input_type -> logsproxy.v1.PlayerInfoRequest
+	24, // 23: logsproxy.v1.PlayerQueryService.PlayerLogs:input_type -> logsproxy.v1.PlayerLogsRequest
+	26, // 24: logsproxy.v1.PlayerQueryService.ConnectedPlayers:input_type -> logsproxy.v1.ConnectedPlayersRequest
+	4,  // 25: logsproxy.v1.AdminLogService.AdminLogUpdates:output_type -> logsproxy.v1.AdminLogUpdatesResponse
+	6,  // 26: logsproxy.v1.AdminLogService.AdminsLogs:output_type -> logsproxy.v1.AdminsLogsResponse
+	9,  // 27: logsproxy.v1.JoinLogService.JoinLogUpdates:output_type -> logsproxy.v1.JoinLogUpdatesResponse
+	11, // 28: logsproxy.v1.JoinLogService.JoinLogs:output_type -> logsproxy.v1.JoinLogsResponse
+	14, // 29: logsproxy.v1.PlayerProfilesService.PlayerProfilesUpdates:output_type -> logsproxy.v1.PlayerProfilesUpdatesResponse
+	16, // 30: logsproxy.v1.PlayerProfilesService.PlayerProfilesLogs:output_type -> logsproxy.v1.PlayerProfilesLogsResponse
+	19, // 31: logsproxy.v1.PlayerQueryService.SearchPlayers:output_type -> logsproxy.v1.SearchPlayersResponse
+	23, // 32: logsproxy.v1.PlayerQueryService.PlayerInfo:output_type -> logsproxy.v1.PlayerInfoResponse
+	25, // 33: logsproxy.v1.PlayerQueryService.PlayerLogs:output_type -> logsproxy.v1.PlayerLogsResponse
+	28, // 34: logsproxy.v1.PlayerQueryService.ConnectedPlayers:output_type -> logsproxy.v1.ConnectedPlayersResponse
+	25, // [25:35] is the sub-list for method output_type
+	15, // [15:25] is the sub-list for method input_type
+	15, // [15:15] is the sub-list for extension type_name
+	15, // [15:15] is the sub-list for extension extendee
+	0,  // [0:15] is the sub-list for field type_name
 }
 
 func init() { file_logsproxy_v1_logs_proto_init() }
@@ -1677,7 +1871,7 @@ func file_logsproxy_v1_logs_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_logsproxy_v1_logs_proto_rawDesc), len(file_logsproxy_v1_logs_proto_rawDesc)),
-			NumEnums:      1,
+			NumEnums:      2,
 			NumMessages:   27,
 			NumExtensions: 0,
 			NumServices:   4,

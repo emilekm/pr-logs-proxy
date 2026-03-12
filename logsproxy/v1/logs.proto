@@ -4,12 +4,51 @@ package logsproxy.v1;
 
 option go_package = "github.com/alliance-community/pr-logs-proxy/logsproxy/v1";
 
+enum AdminAction {
+  ADMIN_ACTION_UNSPECIFIED = 0;
+  ADMIN_ACTION_AA = 1;
+  ADMIN_ACTION_ALLOWEDID = 2;
+  ADMIN_ACTION_BAN = 3;
+  ADMIN_ACTION_BANID = 4;
+  ADMIN_ACTION_FLY = 5;
+  ADMIN_ACTION_HASH = 6;
+  ADMIN_ACTION_INIT = 7;
+  ADMIN_ACTION_KICK = 8;
+  ADMIN_ACTION_KILL = 9;
+  ADMIN_ACTION_MAPVOTE = 10;
+  ADMIN_ACTION_MAPVOTERESULT = 11;
+  ADMIN_ACTION_MESSAGE = 12;
+  ADMIN_ACTION_RELOAD = 13;
+  ADMIN_ACTION_REPORT = 14;
+  ADMIN_ACTION_REPORTP = 15;
+  ADMIN_ACTION_RESIGN = 16;
+  ADMIN_ACTION_RESIGNALL = 17;
+  ADMIN_ACTION_RUNNEXT = 18;
+  ADMIN_ACTION_SAY = 19;
+  ADMIN_ACTION_SAYTEAM = 20;
+  ADMIN_ACTION_SCRAMBLE = 21;
+  ADMIN_ACTION_SETNEXT = 22;
+  ADMIN_ACTION_STOPSERVER = 23;
+  ADMIN_ACTION_SWAPTEAMS = 24;
+  ADMIN_ACTION_SWITCH = 25;
+  ADMIN_ACTION_TEMPBAN = 26;
+  ADMIN_ACTION_TICKETS = 27;
+  ADMIN_ACTION_TIMEBAN = 28;
+  ADMIN_ACTION_TIMEBANID = 29;
+  ADMIN_ACTION_UNBAN = 30;
+  ADMIN_ACTION_UNBANID = 31;
+  ADMIN_ACTION_UNBANNAME = 32;
+  ADMIN_ACTION_UNGRIEF = 33;
+  ADMIN_ACTION_WARN = 34;
+}
+
 message AdminLogEntry {
   int64 timestamp = 1;
-  string action = 2;
-  string issuer = 3;
-  string target = 4;
-  string details = 5;
+  AdminAction action = 2;
+  string action_str = 3;
+  string issuer = 4;
+  string target = 5;
+  string details = 6;
 }
 message AdminLogUpdatesRequest {
   optional uint64 line_number = 1;

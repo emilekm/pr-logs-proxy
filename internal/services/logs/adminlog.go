@@ -2,6 +2,7 @@ package logs
 
 import (
 	"context"
+	"strings"
 
 	v1 "github.com/Alliance-Community/pr-logs-proxy/logsproxy/v1"
 	"github.com/emilekm/go-prbf2/logs"
@@ -62,8 +63,85 @@ func adminEntryToProto(entry *logs.AdminEntry) *v1.AdminLogEntry {
 	return &v1.AdminLogEntry{
 		Timestamp: entry.Timestamp.Unix(),
 		Issuer:    entry.Issuer,
-		Action:    entry.Action,
+		Action:    adminActionFromLog(entry.Action),
+		ActionStr: entry.Action,
 		Target:    entry.Target,
 		Details:   entry.Details,
+	}
+}
+
+func adminActionFromLog(cmd string) v1.AdminAction {
+	upper := strings.ToUpper(strings.TrimPrefix(cmd, "!"))
+	switch upper {
+	case "AA":
+		return v1.AdminAction_ADMIN_ACTION_AA
+	case "ALLOWEDID":
+		return v1.AdminAction_ADMIN_ACTION_ALLOWEDID
+	case "BAN":
+		return v1.AdminAction_ADMIN_ACTION_BAN
+	case "BANID":
+		return v1.AdminAction_ADMIN_ACTION_BANID
+	case "FLY":
+		return v1.AdminAction_ADMIN_ACTION_FLY
+	case "HASH":
+		return v1.AdminAction_ADMIN_ACTION_HASH
+	case "INIT":
+		return v1.AdminAction_ADMIN_ACTION_INIT
+	case "K", "KICK":
+		return v1.AdminAction_ADMIN_ACTION_KICK
+	case "KILL":
+		return v1.AdminAction_ADMIN_ACTION_KILL
+	case "MAPVOTE":
+		return v1.AdminAction_ADMIN_ACTION_MAPVOTE
+	case "MAPVOTERESULT":
+		return v1.AdminAction_ADMIN_ACTION_MAPVOTERESULT
+	case "MESSAGE":
+		return v1.AdminAction_ADMIN_ACTION_MESSAGE
+	case "RELOAD":
+		return v1.AdminAction_ADMIN_ACTION_RELOAD
+	case "REPORT":
+		return v1.AdminAction_ADMIN_ACTION_REPORT
+	case "REPORTP":
+		return v1.AdminAction_ADMIN_ACTION_REPORTP
+	case "RESIGN":
+		return v1.AdminAction_ADMIN_ACTION_RESIGN
+	case "RESIGNALL":
+		return v1.AdminAction_ADMIN_ACTION_RESIGNALL
+	case "RUNNEXT":
+		return v1.AdminAction_ADMIN_ACTION_RUNNEXT
+	case "SAY":
+		return v1.AdminAction_ADMIN_ACTION_SAY
+	case "SAYTEAM":
+		return v1.AdminAction_ADMIN_ACTION_SAYTEAM
+	case "SCRAMBLE":
+		return v1.AdminAction_ADMIN_ACTION_SCRAMBLE
+	case "SETNEXT":
+		return v1.AdminAction_ADMIN_ACTION_SETNEXT
+	case "STOPSERVER":
+		return v1.AdminAction_ADMIN_ACTION_STOPSERVER
+	case "SWAPTEAMS":
+		return v1.AdminAction_ADMIN_ACTION_SWAPTEAMS
+	case "SWITCH":
+		return v1.AdminAction_ADMIN_ACTION_SWITCH
+	case "TEMPBAN":
+		return v1.AdminAction_ADMIN_ACTION_TEMPBAN
+	case "TICKETS":
+		return v1.AdminAction_ADMIN_ACTION_TICKETS
+	case "TIMEBAN":
+		return v1.AdminAction_ADMIN_ACTION_TIMEBAN
+	case "TIMEBANID":
+		return v1.AdminAction_ADMIN_ACTION_TIMEBANID
+	case "UNBAN":
+		return v1.AdminAction_ADMIN_ACTION_UNBAN
+	case "UNBANID":
+		return v1.AdminAction_ADMIN_ACTION_UNBANID
+	case "UNBANNAME":
+		return v1.AdminAction_ADMIN_ACTION_UNBANNAME
+	case "UNGRIEF":
+		return v1.AdminAction_ADMIN_ACTION_UNGRIEF
+	case "WARN":
+		return v1.AdminAction_ADMIN_ACTION_WARN
+	default:
+		return v1.AdminAction_ADMIN_ACTION_UNSPECIFIED
 	}
 }
